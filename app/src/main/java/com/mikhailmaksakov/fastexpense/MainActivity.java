@@ -16,7 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +68,7 @@ public class MainActivity extends Activity
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
+    public void onSectionAttached(int number){
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
@@ -74,13 +78,35 @@ public class MainActivity extends Activity
 
                 mTitle = getString(R.string.title_section2);
 
+                String currentString = "";
+
                 ArrayList result = currentDBAccessHelper.getTransactionsText();
+
+                String[] lvArray = new String[result.size() - 1];
 
                 for (int index = 0; index < result.size(); index++){
 
-                    HashMap currentMap = (HashMap) result.get(index);
+                    currentString = "";
+
+                    JSONObject currentMap = (JSONObject) result.get(index);
+
+                    try {
+                        currentString = "time " + currentMap.getString(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)
+                                        + "; type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)
+                                        + "; transaction type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)
+                                        + "; sum " + currentMap.getDouble(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    lvArray[index] = currentString;
 
                 };
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
+
+                ListView lv = (ListView)findViewById(R.id.listView);
+                lv.setAdapter(adapter);
 
                 break;
             case 3:
@@ -126,6 +152,15 @@ public class MainActivity extends Activity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        currentDBAccessHelper.close();
+
     }
 
     /**

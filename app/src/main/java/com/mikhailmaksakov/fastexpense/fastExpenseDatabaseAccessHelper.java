@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,29 +23,29 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
     private static final String DATABASE_NAME = "fastExpenseDB";
     private static final int DATABASE_VERSION = 1;
 
-    private static final int TRANSACTIONTYPE_EXPENSE = 1;
-    private static final int TRANSACTIONTYPE_REVENUE = 2;
-    private static final int TRANSACTIONTYPE_TRANSFER = 3;
+    public static final int TRANSACTIONTYPE_EXPENSE = 1;
+    public static final int TRANSACTIONTYPE_REVENUE = 2;
+    public static final int TRANSACTIONTYPE_TRANSFER = 3;
 
-    private static final String DATABASE_TABLE_EXPENSETYPES = "expense_types";
+    public static final String DATABASE_TABLE_EXPENSETYPES = "expense_types";
 
-    private static final String DATABASE_TABLE_EXPENSETYPES_FIELD_ID = "_id";
-    private static final String DATABASE_TABLE_EXPENSETYPES_FIELD_NAME = "name";
-    private static final int DATABASE_TABLE_EXPENSETYPES_FIELD_NAME_LENGTH = 100;
+    public static final String DATABASE_TABLE_EXPENSETYPES_FIELD_ID = "_id";
+    public static final String DATABASE_TABLE_EXPENSETYPES_FIELD_NAME = "name";
+    public static final int DATABASE_TABLE_EXPENSETYPES_FIELD_NAME_LENGTH = 100;
 
-    private static final String DATABASE_TABLE_REVENUETYPES = "revenue_types";
+    public static final String DATABASE_TABLE_REVENUETYPES = "revenue_types";
 
-    private static final String DATABASE_TABLE_REVENUETYPES_FIELD_ID = "_id";
-    private static final String DATABASE_TABLE_REVENUETYPES_FIELD_NAME = "name";
-    private static final int DATABASE_TABLE_REVENUETYPES_FIELD_NAME_LENGTH = 100;
+    public static final String DATABASE_TABLE_REVENUETYPES_FIELD_ID = "_id";
+    public static final String DATABASE_TABLE_REVENUETYPES_FIELD_NAME = "name";
+    public static final int DATABASE_TABLE_REVENUETYPES_FIELD_NAME_LENGTH = 100;
 
-    private static final String DATABASE_TABLE_TRANSACTIONLIST = "operation_list";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST = "operation_list";
 
-    private static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID = "_id";
-    private static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP = "trancastion_datetime";
-    private static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE = "trancastion_type"; // TRANSACTIONTYPE_...
-    private static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "trancastion_type_id";
-    private static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM = "trancastion_sum";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID = "_id";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP = "trancastion_datetime";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE = "trancastion_type"; // TRANSACTIONTYPE_...
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "trancastion_type_id";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM = "trancastion_sum";
 
     public fastExpenseDatabaseAccessHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -91,9 +94,38 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
-    public ArrayList<HashMap<String, String>> getTransactionsText(){
+//    public ArrayList<HashMap<String, String>> getTransactionsText(){
+//
+//        ArrayList<HashMap<String, String>> result = new ArrayList<HashMap<String, String>>();
+//
+//        SQLiteDatabase readableDB = getReadableDatabase();
+//
+//        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_TRANSACTIONLIST, null);
+//
+//        while (cursor.moveToNext()){
+//
+//            HashMap<String, String> currentMap = new HashMap<String, String>();
+//
+//            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)));
+//            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, String.valueOf(cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE))));
+//            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, String.valueOf(cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID))));
+//            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, String.valueOf(cursor.getDouble(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM))));
+//
+//            result.add(currentMap);
+//
+//        }
+//
+//        cursor.close();
+//        readableDB.close();
+//
+//        return result;
+//
+//    }
 
-        ArrayList<HashMap<String, String>> result = new ArrayList<HashMap<String, String>>();
+
+    public ArrayList<JSONObject> getTransactionsText() {
+
+        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
 
         SQLiteDatabase readableDB = getReadableDatabase();
 
@@ -101,12 +133,17 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         while (cursor.moveToNext()){
 
-            HashMap<String, String> currentMap = new HashMap<String, String>();
+            JSONObject currentMap = new JSONObject();
 
-            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)));
-            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, String.valueOf(cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE))));
-            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, String.valueOf(cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID))));
-            currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, String.valueOf(cursor.getDouble(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM))));
+            try {
+                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)));
+                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)));
+                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)));
+                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, cursor.getDouble(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM)));
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+
 
             result.add(currentMap);
 
