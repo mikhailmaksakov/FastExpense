@@ -18,6 +18,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,41 +73,11 @@ public class MainActivity extends Activity
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
-                currentDBAccessHelper.putExpense("123456", 1, 122.11);
+//                currentDBAccessHelper.putExpense("123456", 1, 122.11);
                 break;
             case 2:
 
                 mTitle = getString(R.string.title_section2);
-
-                String currentString = "";
-
-                ArrayList result = currentDBAccessHelper.getTransactionsText();
-
-                String[] lvArray = new String[result.size() - 1];
-
-                for (int index = 0; index < result.size(); index++){
-
-                    currentString = "";
-
-                    JSONObject currentMap = (JSONObject) result.get(index);
-
-                    try {
-                        currentString = "time " + currentMap.getString(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)
-                                        + "; type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)
-                                        + "; transaction type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)
-                                        + "; sum " + currentMap.getDouble(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    lvArray[index] = currentString;
-
-                };
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
-
-                ListView lv = (ListView)findViewById(R.id.listView);
-                lv.setAdapter(adapter);
 
                 break;
             case 3:
@@ -116,6 +87,60 @@ public class MainActivity extends Activity
                 mTitle = getString(R.string.title_section4);
                 break;
         }
+    }
+    public void onCreateMainSectionView(View _context, int number){
+
+        switch (number) {
+            case 1:
+                break;
+            case 2:
+
+                String currentString = "";
+
+                ArrayList result = currentDBAccessHelper.getTransactionsText();
+
+                String[] lvArray = new String[result.size()];
+
+                for (int index = 0; index < result.size(); index++){
+
+                    currentString = "";
+
+                    JSONObject currentMap = (JSONObject) result.get(index);
+
+                    try {
+                        currentString = "time " + currentMap.getString(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)
+                                + "; type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)
+                                + "; transaction type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)
+                                + "; sum " + currentMap.getDouble(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    lvArray[index] = currentString;
+
+                };
+
+                ArrayAdapter<String> adapter;
+                ListView lv = (ListView)_context.findViewById(R.id.listView);
+
+                try {
+                    adapter = new ArrayAdapter<String>(_context.getContext(), R.layout.simple_list_item1, lvArray);
+                    lv.setAdapter(adapter);
+
+                } catch (Exception e){
+
+                    Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+
+                }
+
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+        }
+
     }
 
     public void restoreActionBar() {
@@ -192,14 +217,14 @@ public class MainActivity extends Activity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                     Bundle savedInstanceState) {
                 View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                ((MainActivity) container.getContext()).onCreateMainSectionView(rootView, getArguments().getInt(ARG_SECTION_NUMBER));
                 return rootView;
         }
 
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+            ((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
 
