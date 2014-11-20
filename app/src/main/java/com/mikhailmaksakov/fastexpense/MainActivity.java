@@ -124,7 +124,7 @@ public class MainActivity extends Activity
                 ListView lv = (ListView)_context.findViewById(R.id.listView);
 
                 try {
-                    adapter = new ArrayAdapter<String>(_context.getContext(), R.layout.simple_list_item1, lvArray);
+                    adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
                     lv.setAdapter(adapter);
 
                 } catch (Exception e){
