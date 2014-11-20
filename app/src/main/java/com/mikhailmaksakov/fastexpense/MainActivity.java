@@ -18,6 +18,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -32,6 +35,8 @@ public class MainActivity extends Activity
      */
     private CharSequence mTitle;
 
+    private fastExpenseDatabaseAccessHelper currentDBAccessHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +50,9 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        currentDBAccessHelper = new fastExpenseDatabaseAccessHelper(this);
+
     }
 
     @Override
@@ -60,9 +68,20 @@ public class MainActivity extends Activity
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
+                currentDBAccessHelper.putExpense("123456", 1, 122.11);
                 break;
             case 2:
+
                 mTitle = getString(R.string.title_section2);
+
+                ArrayList result = currentDBAccessHelper.getTransactionsText();
+
+                for (int index = 0; index < result.size(); index++){
+
+                    HashMap currentMap = (HashMap) result.get(index);
+
+                };
+
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
