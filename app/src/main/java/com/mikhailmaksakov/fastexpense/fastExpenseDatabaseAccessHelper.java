@@ -79,12 +79,28 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     public void putExpense(String timeStamp, int expenseTypeID, double sum) {
 
+        putTransaction(timeStamp, TRANSACTIONTYPE_EXPENSE, expenseTypeID, sum);
+
+    }
+
+    public void putRevenue(String timeStamp, int expenseTypeID, double sum) {
+
+        putTransaction(timeStamp, TRANSACTIONTYPE_REVENUE, expenseTypeID, sum);
+
+    }
+
+//    public void putTransfer(String timeStamp, int expenseTypeID, int sourceAccountID, int receivingAccountID, double sum) {
+//
+//    }
+
+    private void putTransaction(String timeStamp, int TRANSACTIONTYPE, int expenseTypeID, double sum) {
+
         SQLiteDatabase writableDB = getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, timeStamp);
-        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, TRANSACTIONTYPE_EXPENSE);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, TRANSACTIONTYPE);
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, expenseTypeID);
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, sum);
 

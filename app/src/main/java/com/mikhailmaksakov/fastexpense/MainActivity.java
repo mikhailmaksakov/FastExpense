@@ -8,6 +8,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Layout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -88,12 +90,26 @@ public class MainActivity extends Activity
                 break;
         }
     }
-    public void onCreateMainSectionView(View _context, int number){
+    public void onCreateMainSectionView(final View _context, int number){
 
         switch (number) {
             case 1:
                 break;
             case 2:
+
+//                EditText et = (EditText)(_context).findViewById(R.id.newExpense_ExpenseType_edit);
+//
+//                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//                    @Override
+//                    public void onFocusChange(View v, boolean hasFocus) {
+//                        if (hasFocus)
+//                            Toast.makeText(getApplicationContext(), "Закончили редактирование", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+
+                break;
+            case 3:
 
                 String currentString = "";
 
@@ -118,6 +134,8 @@ public class MainActivity extends Activity
 
                     lvArray[index] = currentString;
 
+                    currentMap = null;
+
                 };
 
                 ArrayAdapter<String> adapter;
@@ -135,12 +153,30 @@ public class MainActivity extends Activity
                 }
 
                 break;
-            case 3:
-                break;
             case 4:
                 break;
         }
 
+    }
+
+    public void onMainSectionViewStateRestored(final View _context, int number){
+
+        switch (number) {
+            case 2:
+
+                EditText et = (EditText) (_context).findViewById(R.id.newExpense_ExpenseType_edit);
+
+                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if (hasFocus)
+                            Toast.makeText(getApplicationContext(), "Фокус", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(getApplicationContext(), "Не фокус", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
+        }
     }
 
     public void restoreActionBar() {
@@ -188,6 +224,12 @@ public class MainActivity extends Activity
 
     }
 
+    public void OnClick_newExpense_ExpenseType(View view) {
+
+
+
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -211,14 +253,41 @@ public class MainActivity extends Activity
         }
 
         public PlaceholderFragment() {
+
+        }
+
+        @Override
+        public void onViewStateRestored(Bundle savedInstanceState) {
+
+            super.onViewStateRestored(savedInstanceState);
+
+            ((MainActivity) this.getView().getContext()).onMainSectionViewStateRestored(this.getView(), getArguments().getInt(ARG_SECTION_NUMBER));
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                     Bundle savedInstanceState) {
-                View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-                ((MainActivity) container.getContext()).onCreateMainSectionView(rootView, getArguments().getInt(ARG_SECTION_NUMBER));
-                return rootView;
+
+            int currentSection = getArguments().getInt(ARG_SECTION_NUMBER);
+
+            int currentLayout = R.layout.fragment_main;
+
+            switch (currentSection){
+                case 1:
+                    break;
+                case 2:
+                    currentLayout = R.layout.fragment_new_expense;
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+            }
+
+            View rootView = inflater.inflate(currentLayout, container, false);
+            ((MainActivity) container.getContext()).onCreateMainSectionView(rootView, getArguments().getInt(ARG_SECTION_NUMBER));
+
+            return rootView;
         }
 
         @Override
