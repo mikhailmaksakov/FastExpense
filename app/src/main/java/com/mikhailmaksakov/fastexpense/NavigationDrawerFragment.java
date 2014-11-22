@@ -168,6 +168,10 @@ public class NavigationDrawerFragment extends Fragment {
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
                 }
 
+                // MMN
+                ((MainActivity)drawerView.getContext()).onDrawerOpened(drawerView);
+                // MMN
+
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };

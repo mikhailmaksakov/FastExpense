@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Layout;
+import android.text.method.CharacterPickerDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -44,6 +47,8 @@ public class MainActivity extends Activity
 
     private fastExpenseDatabaseAccessHelper currentDBAccessHelper;
 
+    private listSelectionFragment mlistSelectionFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +64,8 @@ public class MainActivity extends Activity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         currentDBAccessHelper = new fastExpenseDatabaseAccessHelper(this);
+
+        mlistSelectionFragment = new listSelectionFragment();
 
     }
 
@@ -90,6 +97,13 @@ public class MainActivity extends Activity
                 break;
         }
     }
+
+    public void onDrawerOpened(View view){
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
     public void onCreateMainSectionView(final View _context, int number){
 
         switch (number) {
@@ -110,6 +124,10 @@ public class MainActivity extends Activity
 
                 break;
             case 3:
+
+
+                break;
+            case 4:
 
                 String currentString = "";
 
@@ -153,30 +171,44 @@ public class MainActivity extends Activity
                 }
 
                 break;
-            case 4:
-                break;
         }
 
     }
 
-    public void onMainSectionViewStateRestored(final View _context, int number){
+    public void onCreateSelectionListView(final View listSelectionView, String currentList, int currentTransactionTypeID){
 
-        switch (number) {
-            case 2:
+        ArrayList<HashMap<String, String>> result = currentDBAccessHelper.getExpenseTypesList();
 
-                EditText et = (EditText) (_context).findViewById(R.id.newExpense_ExpenseType_edit);
+        String[] lvArray = new String[result.size()];
 
-                et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(View v, boolean hasFocus) {
-                        if (hasFocus)
-                            Toast.makeText(getApplicationContext(), "Фокус", Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(getApplicationContext(), "Не фокус", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                break;
-        }
+        for (int index = 0; index < result.size(); index++){
+
+            HashMap<String, String> currentMap = (HashMap<String, String>) result.get(index);
+
+            lvArray[index] = currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME);
+
+            currentMap = null;
+
+        };
+
+        ArrayAdapter<String> adapter;
+        ListView lv = (ListView)listSelectionView.findViewById(R.id.selectionList);
+
+        adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
+        lv.setAdapter(adapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+
+
+    }
+
+
+    public void onMainSectionPause(View view){
     }
 
     public void restoreActionBar() {
@@ -226,7 +258,13 @@ public class MainActivity extends Activity
 
     public void OnClick_newExpense_ExpenseType(View view) {
 
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, mlistSelectionFragment.getExpenseSelectionFragment(0))
+                .commit();
 
+//        Toast.makeText(getApplicationContext(), "click", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -254,14 +292,6 @@ public class MainActivity extends Activity
 
         public PlaceholderFragment() {
 
-        }
-
-        @Override
-        public void onViewStateRestored(Bundle savedInstanceState) {
-
-            super.onViewStateRestored(savedInstanceState);
-
-            ((MainActivity) this.getView().getContext()).onMainSectionViewStateRestored(this.getView(), getArguments().getInt(ARG_SECTION_NUMBER));
         }
 
         @Override
@@ -294,6 +324,77 @@ public class MainActivity extends Activity
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             ((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            ((MainActivity) this.getView().getContext()).onMainSectionPause(this.getView());
+        }
+    }
+
+    public static class listSelectionFragment extends Fragment{
+
+        private static final String ARG_SECTION_NUMBER = "section_number";
+        private static final String ARG_CURRENT_LIST = "current_list";
+        private static final String ARG_CURRENT_TRANSACTIONTYPEID = "current_transaction_type_id";
+
+        private static final String ARG_LIST_EXPENSE = "list_expense";
+        private static final String ARG_LIST_REVENUE = "list_revenue";
+
+        private static final int SELECTION_LIST_LAYOUT = R.layout.selectionlist;
+//
+        private String currentList;
+        private int currentTransactionTypeID;
+
+        public listSelectionFragment() {
+        }
+
+        public listSelectionFragment getExpenseSelectionFragment(int currentTransactionTypeID){
+
+            Bundle args = new Bundle();
+            args.putString(ARG_CURRENT_LIST, ARG_LIST_EXPENSE);
+            args.putInt(ARG_CURRENT_TRANSACTIONTYPEID, currentTransactionTypeID);
+            this.setArguments(args);
+            return this;
+
+        };
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            String currentList = getArguments().getString(ARG_CURRENT_LIST);
+            int currentTransactionTypeID = getArguments().getInt(ARG_CURRENT_TRANSACTIONTYPEID);
+
+//            int currentLayout = R.layout.selectionlist;
+//
+//            switch (currentList){
+//                case ARG_LIST_EXPENSE:
+//                    break;
+//                case ARG_LIST_REVENUE:
+//                    currentLayout = SELECTION_LIST_LAYOUT;
+//                    break;
+//                case 3:
+//                    break;
+//                case 4:
+//                    break;
+//            }
+
+            View rootView;
+
+            rootView = null;
+
+            try {
+                rootView = inflater.inflate(SELECTION_LIST_LAYOUT, container, false);
+                ((MainActivity) container.getContext()).onCreateSelectionListView(rootView, currentList, currentTransactionTypeID);
+            }
+            catch (Exception e){
+                Toast.makeText(((MainActivity) container.getContext()), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            return rootView;
+
         }
     }
 

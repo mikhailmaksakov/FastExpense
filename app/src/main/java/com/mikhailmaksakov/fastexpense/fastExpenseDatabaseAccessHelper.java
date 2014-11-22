@@ -110,6 +110,31 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
+    public ArrayList<HashMap<String, String>> getExpenseTypesList(){
+
+        ArrayList<HashMap<String, String>> result = new ArrayList<HashMap<String, String>>();
+
+        SQLiteDatabase readableDB = getReadableDatabase();
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_EXPENSETYPES + " ORDER BY _id", null);
+
+        while (cursor.moveToNext()){
+
+            HashMap<String, String> currentMap = new HashMap<String, String>();
+
+            currentMap.put(DATABASE_TABLE_EXPENSETYPES_FIELD_ID, String.valueOf(cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_ID))));
+            currentMap.put(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME)));
+
+            result.add(currentMap);
+
+        }
+
+        cursor.close();
+        readableDB.close();
+
+        return result;
+
+    }
+
 //    public ArrayList<HashMap<String, String>> getTransactionsText(){
 //
 //        ArrayList<HashMap<String, String>> result = new ArrayList<HashMap<String, String>>();
