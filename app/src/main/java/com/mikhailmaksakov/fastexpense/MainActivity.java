@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -180,6 +181,7 @@ public class MainActivity extends Activity
         ArrayList<HashMap<String, String>> result = currentDBAccessHelper.getExpenseTypesList();
 
         String[] lvArray = new String[result.size()];
+        String[] lvEmptyArray = new String[1];
 
         for (int index = 0; index < result.size(); index++){
 
@@ -187,20 +189,61 @@ public class MainActivity extends Activity
 
             lvArray[index] = currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME);
 
+//            lvArrayHM[index] = new HashMap<String, String>();
+//            lvArrayHM[index].put("id", currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_ID));
+//            lvArrayHM[index].put("name", currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME));
+
             currentMap = null;
 
         };
 
         ArrayAdapter<String> adapter;
+        SimpleAdapter smadapter = new SimpleAdapter(listSelectionView.getContext(), result, R.id.selectionList, new String[]{fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {R.id.simplelistitem_main});
+
+//        ArrayAdapter<HashMap<String, String>> adapter;
         ListView lv = (ListView)listSelectionView.findViewById(R.id.selectionList);
 
-        adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
-        lv.setAdapter(adapter);
+        if (result.size() == 0){
+//            lvEmptyArray[0] = "Справочник видов расходов не заполнен";
+
+//            HashMap<String, String>[] lvArrayHM = new HashMap[1];
+//
+//            lvArrayHM[0] = new HashMap<String, String>();
+//            lvArrayHM[0].put("id", "Нуль");
+//            lvArrayHM[0].put("name", "Пустос");
+//
+//            adapter = new ArrayAdapter<HashMap<String, String>>(this, R.layout.simple_list_item1, lvArrayHM);
+
+            ArrayList<HashMap<String, String>> emptyresult = new ArrayList<HashMap<String, String>>();
+            HashMap value1 = new HashMap();
+
+            value1.put("id", "98749845");
+            value1.put("name", "sdfsdf skjdhfksjnsdf");
+
+            emptyresult.add(value1);
+
+            SimpleAdapter smemptyadapter = new SimpleAdapter(listSelectionView.getContext(), emptyresult, R.id.selectionList, new String[]{"name"}, new int[] {R.id.simplelistitem_main});
+            lv.setAdapter(smemptyadapter);
+//            adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvEmptyArray);
+//            lv.setAdapter(adapter);
+
+        }
+        else{
+//            adapter = new ArrayAdapter<HashMap<String, String>>(this, R.layout.simple_list_item1, result);
+//            adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
+            lv.setAdapter(smadapter);
+        }
+
+//        lv.setAdapter(adapter);
+
+//        Object asd = parent.getAdapter().getItem(position);
+//
+//        Toast.makeText(getApplicationContext(), "list item selected", Toast.LENGTH_SHORT).show();
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                Toast.makeText(getApplicationContext(), "list item selected", Toast.LENGTH_SHORT).show();
             }
         });
 
