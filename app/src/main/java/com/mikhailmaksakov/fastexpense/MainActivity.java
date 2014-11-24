@@ -198,7 +198,7 @@ public class MainActivity extends Activity
         };
 
         ArrayAdapter<String> adapter;
-        SimpleAdapter smadapter = new SimpleAdapter(listSelectionView.getContext(), result, R.id.selectionList, new String[]{fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {R.id.simplelistitem_main});
+        SimpleAdapter smadapter = new SimpleAdapter(listSelectionView.getContext().getApplicationContext(), result, R.id.selectionList, new String[]{fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {R.id.simplelistitem_main});
 
 //        ArrayAdapter<HashMap<String, String>> adapter;
         ListView lv = (ListView)listSelectionView.findViewById(R.id.selectionList);
@@ -222,7 +222,7 @@ public class MainActivity extends Activity
 
             emptyresult.add(value1);
 
-            SimpleAdapter smemptyadapter = new SimpleAdapter(listSelectionView.getContext(), emptyresult, R.id.selectionList, new String[]{"name"}, new int[] {R.id.simplelistitem_main});
+            SimpleAdapter smemptyadapter = new SimpleAdapter(listSelectionView.getContext().getApplicationContext(), emptyresult, R.id.selectionList, new String[]{"name"}, new int[] {R.id.simplelistitem_main});
             lv.setAdapter(smemptyadapter);
 //            adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvEmptyArray);
 //            lv.setAdapter(adapter);
