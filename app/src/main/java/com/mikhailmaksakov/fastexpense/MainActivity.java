@@ -178,78 +178,34 @@ public class MainActivity extends Activity
 
     public void onCreateSelectionListView(final View listSelectionView, String currentList, int currentTransactionTypeID){
 
-        ArrayList<HashMap<String, String>> result = currentDBAccessHelper.getExpenseTypesList();
+        ListView currentListView = (ListView)listSelectionView.findViewById(R.id.selectionList);
 
-        String[] lvArray = new String[result.size()];
+        ArrayList<HashMap<String, Object>> result = currentDBAccessHelper.getExpenseTypesList();
+
         String[] lvEmptyArray = new String[1];
 
-        for (int index = 0; index < result.size(); index++){
+        lvEmptyArray[0] = "Справочник видов расходов не заполнен";
 
-            HashMap<String, String> currentMap = (HashMap<String, String>) result.get(index);
+        ArrayAdapter<String> emptyAdapter;
+        emptyAdapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvEmptyArray);
 
-            lvArray[index] = currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME);
-
-//            lvArrayHM[index] = new HashMap<String, String>();
-//            lvArrayHM[index].put("id", currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_ID));
-//            lvArrayHM[index].put("name", currentMap.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME));
-
-            currentMap = null;
-
-        };
-
-        ArrayAdapter<String> adapter;
-        SimpleAdapter smadapter = new SimpleAdapter(listSelectionView.getContext().getApplicationContext(), result, R.id.selectionList, new String[]{fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {R.id.simplelistitem_main});
-
-//        ArrayAdapter<HashMap<String, String>> adapter;
-        ListView lv = (ListView)listSelectionView.findViewById(R.id.selectionList);
+        SimpleAdapter listAdapter = new SimpleAdapter(listSelectionView.getContext().getApplicationContext(), result, R.layout.simple_list_item1, new String[]{fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {R.id.simplelistitem_main});
 
         if (result.size() == 0){
-//            lvEmptyArray[0] = "Справочник видов расходов не заполнен";
-
-//            HashMap<String, String>[] lvArrayHM = new HashMap[1];
-//
-//            lvArrayHM[0] = new HashMap<String, String>();
-//            lvArrayHM[0].put("id", "Нуль");
-//            lvArrayHM[0].put("name", "Пустос");
-//
-//            adapter = new ArrayAdapter<HashMap<String, String>>(this, R.layout.simple_list_item1, lvArrayHM);
-
-            ArrayList<HashMap<String, String>> emptyresult = new ArrayList<HashMap<String, String>>();
-            HashMap value1 = new HashMap();
-
-            value1.put("id", "98749845");
-            value1.put("name", "sdfsdf skjdhfksjnsdf");
-
-            emptyresult.add(value1);
-
-            SimpleAdapter smemptyadapter = new SimpleAdapter(listSelectionView.getContext().getApplicationContext(), emptyresult, R.id.selectionList, new String[]{"name"}, new int[] {R.id.simplelistitem_main});
-            lv.setAdapter(smemptyadapter);
-//            adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvEmptyArray);
-//            lv.setAdapter(adapter);
-
+            currentListView.setAdapter(emptyAdapter);
         }
         else{
-//            adapter = new ArrayAdapter<HashMap<String, String>>(this, R.layout.simple_list_item1, result);
-//            adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
-            lv.setAdapter(smadapter);
+            currentListView.setAdapter(listAdapter);
         }
 
-//        lv.setAdapter(adapter);
-
-//        Object asd = parent.getAdapter().getItem(position);
-//
-//        Toast.makeText(getApplicationContext(), "list item selected", Toast.LENGTH_SHORT).show();
-
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        currentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), "list item selected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
+                parent.setSelection(position);
             }
         });
-
-
     }
-
 
     public void onMainSectionPause(View view){
     }
@@ -306,8 +262,6 @@ public class MainActivity extends Activity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, mlistSelectionFragment.getExpenseSelectionFragment(0))
                 .commit();
-
-//        Toast.makeText(getApplicationContext(), "click", Toast.LENGTH_SHORT).show();
 
     }
 
