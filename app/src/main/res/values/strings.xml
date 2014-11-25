@@ -6,11 +6,15 @@
     <string name="title_section2">Расход</string>
     <string name="title_section3">Перемещение</string>
     <string name="title_section4">Список документов</string>
+    <string name="title_section5">Виды расходов(справочника)</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     <string name="new_expense_header_text">Ввод нового расхода</string>
     <string name="new_expense_ExpenseTypeDefault_text">Выберите вид расхода</string>
+    <string name="expenseTypesIsEmptyString">Справочник видов расходов не заполнен</string>
+    <string name="expenseTypesDeleteMessage">Удалить элемент справочника?</string>
+    <string name="wordYes">Да</string>
 
 </resources>

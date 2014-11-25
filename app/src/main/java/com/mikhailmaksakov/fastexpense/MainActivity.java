@@ -3,9 +3,11 @@ package com.mikhailmaksakov.fastexpense;
 import android.app.Activity;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Layout;
@@ -48,7 +50,7 @@ public class MainActivity extends Activity
 
     private fastExpenseDatabaseAccessHelper currentDBAccessHelper;
 
-    private listSelectionFragment mlistSelectionFragment;
+//    private listSelectionFragment mlistSelectionFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,35 +68,59 @@ public class MainActivity extends Activity
 
         currentDBAccessHelper = new fastExpenseDatabaseAccessHelper(this);
 
-        mlistSelectionFragment = new listSelectionFragment();
+//        mlistSelectionFragment = new listSelectionFragment();
 
     }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+
+        Fragment currentFragment = null;
+
+        switch (position){
+//            case 1:
+//                currentFragment = new Fragment();
+//                break;
+//            case 2:
+//                currentFragment = new Fragment();
+//                break;
+//            case 3:
+//                currentFragment = new Fragment();
+//                break;
+//            case 4:
+//                currentFragment = new Fragment();
+//                break;
+            case 5:
+                //PlaceholderFragment.newInstance(position + 1)
+                currentFragment = expenseTypesListFragment.NewExpenseTypesListFragment();
+                break;
+        }
+
+        if (currentFragment != null) {
+            // update the main content by replacing fragments
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, currentFragment)
+                    .commit();
+        }
     }
 
     public void onSectionAttached(int number){
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
-//                currentDBAccessHelper.putExpense("123456", 1, 122.11);
                 break;
             case 2:
-
                 mTitle = getString(R.string.title_section2);
-
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
                 break;
             case 4:
                 mTitle = getString(R.string.title_section4);
+                break;
+            case 5:
+                mTitle = getString(R.string.title_section5);
                 break;
         }
     }
@@ -178,33 +204,6 @@ public class MainActivity extends Activity
 
     public void onCreateSelectionListView(final View listSelectionView, String currentList, int currentTransactionTypeID){
 
-        ListView currentListView = (ListView)listSelectionView.findViewById(R.id.selectionList);
-
-        ArrayList<HashMap<String, Object>> result = currentDBAccessHelper.getExpenseTypesList();
-
-        String[] lvEmptyArray = new String[1];
-
-        lvEmptyArray[0] = "Справочник видов расходов не заполнен";
-
-        ArrayAdapter<String> emptyAdapter;
-        emptyAdapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvEmptyArray);
-
-        SimpleAdapter listAdapter = new SimpleAdapter(listSelectionView.getContext().getApplicationContext(), result, R.layout.simple_list_item1, new String[]{fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {R.id.simplelistitem_main});
-
-        if (result.size() == 0){
-            currentListView.setAdapter(emptyAdapter);
-        }
-        else{
-            currentListView.setAdapter(listAdapter);
-        }
-
-        currentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
-                parent.setSelection(position);
-            }
-        });
     }
 
     public void onMainSectionPause(View view){
@@ -216,7 +215,6 @@ public class MainActivity extends Activity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -257,11 +255,11 @@ public class MainActivity extends Activity
 
     public void OnClick_newExpense_ExpenseType(View view) {
 
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, mlistSelectionFragment.getExpenseSelectionFragment(0))
-                .commit();
+//        // update the main content by replacing fragments
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction()
+//                .replace(R.id.container, mlistSelectionFragment.getExpenseSelectionFragment(0))
+//                .commit();
 
     }
 
@@ -394,5 +392,138 @@ public class MainActivity extends Activity
 
         }
     }
+
+    public static class expenseTypesListFragment extends Fragment{
+
+        private static final String ARG_SECTION_NUMBER = "section_number";
+        private static final String ARG_CURRENT_LIST = "current_list";
+        private static final String ARG_CURRENT_TRANSACTIONTYPEID = "current_transaction_type_id";
+
+        private static final int LIST_LAYOUT = R.layout.expensetypeslist;
+        private static final int LIST_ITEM_LAYOUT = R.layout.expensetypeslistitem;
+        private static final int LIST_ITEM_ID = R.id.expenseTypesListItem;
+
+        private int currentTransactionTypeID;
+        private fastExpenseDatabaseAccessHelper mcurrentDBAccessHelper;
+
+        private ArrayList<HashMap<String, Object>> mExpenseTypesListData;
+
+        public expenseTypesListFragment() {
+
+        }
+
+        public static expenseTypesListFragment NewExpenseTypesListFragment() {
+
+            expenseTypesListFragment fragment = new expenseTypesListFragment();
+
+            return fragment;
+
+        }
+
+        @Override
+        public void onAttach(Activity activity) {
+
+            super.onAttach(activity);
+
+            mcurrentDBAccessHelper = ((MainActivity) activity.getParent()).currentDBAccessHelper;
+            renewExpenseTypesList();
+
+        }
+
+        //        public expenseTypesListFragment getExpenseTypesListFragment(){
+
+//            Bundle args = new Bundle();
+//            args.putString(ARG_CURRENT_LIST, ARG_LIST_EXPENSE);
+//            args.putInt(ARG_CURRENT_TRANSACTIONTYPEID, currentTransactionTypeID);
+//            this.setArguments(args);
+//            return this;
+
+//        };
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+
+            View rootView = inflater.inflate(LIST_LAYOUT, container, false);
+
+            ListView currentListView = (ListView)rootView.findViewById(R.id.selectionList);
+
+//            ArrayList<HashMap<String, Object>> result = mcurrentDBAccessHelper.getExpenseTypesList();
+
+//            String[] lvEmptyArray = new String[1];
+//
+//            lvEmptyArray[0] = getString(R.string.expenseTypesIsEmptyString);
+//
+//            ArrayAdapter<String> emptyAdapter;
+//            emptyAdapter = new ArrayAdapter<String>(getActivity(), LIST_ITEM_LAYOUT, lvEmptyArray);
+
+            SimpleAdapter listAdapter = new SimpleAdapter(currentListView.getContext().getApplicationContext(), mExpenseTypesListData, LIST_ITEM_LAYOUT, new String[]{mcurrentDBAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {LIST_ITEM_ID});
+
+            listAdapter.notifyDataSetChanged();
+
+            if (mExpenseTypesListData.size() == 0){
+//                currentListView.setAdapter(emptyAdapter);
+            }
+            else{
+                currentListView.setAdapter(listAdapter);
+            }
+
+            currentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Toast.makeText(getActivity().getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
+                    parent.setSelection(position);
+                }
+            });
+
+            currentListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
+
+                    final SimpleAdapter adapter = ((SimpleAdapter) parent.getAdapter());
+
+                    AlertDialog.Builder question = new AlertDialog.Builder(getActivity());
+
+                    question.setMessage(getString(R.string.expenseTypesDeleteMessage));
+                    question.setCancelable(true);
+                    question.setPositiveButton(getString(R.string.wordYes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mExpenseTypesListData.remove(adapter.getItem(position));
+                       }
+                    });
+
+                    adapter.notifyDataSetChanged();
+
+                    return true;
+                }
+            });
+
+//            String currentList = getArguments().getString(ARG_CURRENT_LIST);
+//            int currentTransactionTypeID = getArguments().getInt(ARG_CURRENT_TRANSACTIONTYPEID);
+
+//            View rootView;
+//
+//            rootView = null;
+//
+//            try {
+//                rootView = inflater.inflate(SELECTION_LIST_LAYOUT, container, false);
+//                ((MainActivity) container.getContext()).onCreateSelectionListView(rootView, currentList, currentTransactionTypeID);
+//            }
+//            catch (Exception e){
+//                Toast.makeText(((MainActivity) container.getContext()), e.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+
+            return rootView;
+
+        }
+
+        private void renewExpenseTypesList(){
+            mExpenseTypesListData = mcurrentDBAccessHelper.getExpenseTypesList();
+        }
+
+
+    }
+
 
 }
