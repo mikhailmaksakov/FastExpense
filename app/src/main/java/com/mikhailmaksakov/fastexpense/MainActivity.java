@@ -15,6 +15,7 @@ import android.text.method.CharacterPickerDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,20 +79,19 @@ public class MainActivity extends Activity
         Fragment currentFragment = null;
 
         switch (position){
-//            case 1:
-//                currentFragment = new Fragment();
-//                break;
-//            case 2:
-//                currentFragment = new Fragment();
-//                break;
-//            case 3:
-//                currentFragment = new Fragment();
-//                break;
-//            case 4:
-//                currentFragment = new Fragment();
-//                break;
-            case 5:
-                //PlaceholderFragment.newInstance(position + 1)
+            case 0:
+                currentFragment = new Fragment();
+                break;
+            case 1:
+                currentFragment = new Fragment();
+                break;
+            case 2:
+                currentFragment = new Fragment();
+                break;
+            case 3:
+                currentFragment = new Fragment();
+                break;
+            case 4:
                 currentFragment = expenseTypesListFragment.NewExpenseTypesListFragment();
                 break;
         }
@@ -253,6 +253,11 @@ public class MainActivity extends Activity
 
     }
 
+    public void makeToast(String message, int duration){
+        Toast.makeText(getApplicationContext(), message, duration).show();
+
+    }
+
     public void OnClick_newExpense_ExpenseType(View view) {
 
 //        // update the main content by replacing fragments
@@ -338,7 +343,7 @@ public class MainActivity extends Activity
         private static final String ARG_LIST_REVENUE = "list_revenue";
 
         private static final int SELECTION_LIST_LAYOUT = R.layout.selectionlist;
-//
+
         private String currentList;
         private int currentTransactionTypeID;
 
@@ -425,8 +430,10 @@ public class MainActivity extends Activity
 
             super.onAttach(activity);
 
-            mcurrentDBAccessHelper = ((MainActivity) activity.getParent()).currentDBAccessHelper;
+            mcurrentDBAccessHelper = ((MainActivity) activity).currentDBAccessHelper;
             renewExpenseTypesList();
+            setHasOptionsMenu(true);
+            setRetainInstance(true);
 
         }
 
@@ -446,7 +453,7 @@ public class MainActivity extends Activity
 
             View rootView = inflater.inflate(LIST_LAYOUT, container, false);
 
-            ListView currentListView = (ListView)rootView.findViewById(R.id.selectionList);
+            ListView currentListView = (ListView)rootView.findViewById(R.id.expenseTypesList);
 
 //            ArrayList<HashMap<String, Object>> result = mcurrentDBAccessHelper.getExpenseTypesList();
 
@@ -516,6 +523,15 @@ public class MainActivity extends Activity
 
             return rootView;
 
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            if (!((MainActivity) getActivity()).mNavigationDrawerFragment.isDrawerOpen()) {
+                inflater.inflate(R.menu.fastexpensetypeslistmenu, menu);
+            }
+            else
+                super.onCreateOptionsMenu(menu, inflater);
         }
 
         private void renewExpenseTypesList(){
