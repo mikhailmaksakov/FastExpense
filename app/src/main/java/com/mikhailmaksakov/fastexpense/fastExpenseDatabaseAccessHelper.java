@@ -124,6 +124,18 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
+    public void deleteExpenseType(int _id) {
+
+        SQLiteDatabase writableDB = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        writableDB.delete(DATABASE_TABLE_EXPENSETYPES, "_id = ?", new String[]{String.valueOf(_id)});
+
+        writableDB.close();
+
+    }
+
     public ArrayList<HashMap<String, Object>> getExpenseTypesList(){
 
         ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();

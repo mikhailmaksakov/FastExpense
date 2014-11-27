@@ -5,5 +5,8 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/expenseTypesList" />
+        android:id="@+id/expenseTypesList"
+        android:clickable="true"
+        android:longClickable="true"
+        />
 </LinearLayout>

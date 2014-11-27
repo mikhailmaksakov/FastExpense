@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.Layout;
 import android.text.method.CharacterPickerDialog;
 import android.view.Gravity;
@@ -474,24 +475,33 @@ public class MainActivity extends Activity
                 }
             });
 
+
+
             mCurrentListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
                 @Override
                 public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
 
                     final SimpleAdapter adapter = ((SimpleAdapter) parent.getAdapter());
 
+                    final int asd = 1;
+
                     AlertDialog.Builder question = new AlertDialog.Builder(getActivity());
 
                     question.setMessage(getString(R.string.expenseTypesDeleteMessage));
                     question.setCancelable(true);
-                    question.setPositiveButton(getString(R.string.wordYes), new DialogInterface.OnClickListener() {
+
+                    DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            mExpenseTypesListData.remove(adapter.getItem(position));
-                       }
-                    });
+//                            mcurrentDBAccessHelper.deleteExpenseType(((HashMap<String, Object>) adapter.getItem(position)));
+                            renewExpenseTypesList();
+                        }
+                    };
+                    question.setPositiveButton(getString(R.string.wordYes), onClickListener);
 
-                    renewExpenseTypesList();
+                    question.create();
+                    question.show();
 
                     return true;
                 }
@@ -535,6 +545,7 @@ public class MainActivity extends Activity
             mExpenseTypesListData = mcurrentDBAccessHelper.getExpenseTypesList();
             mCurrentListAdapter = new SimpleAdapter(getActivity().getApplicationContext(), mExpenseTypesListData, LIST_ITEM_LAYOUT, new String[]{mcurrentDBAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {LIST_ITEM_ID});
             mCurrentListView.setAdapter(mCurrentListAdapter);
+
         }
 
         public void newExpenseRequest(){
