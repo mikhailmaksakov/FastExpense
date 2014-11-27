@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+//import org.json.JSONException;
+//import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -110,6 +110,20 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
+    public void putExpenseType(String name) {
+
+        SQLiteDatabase writableDB = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME, name);
+
+        writableDB.insert(DATABASE_TABLE_EXPENSETYPES, null, values);
+
+        writableDB.close();
+
+    }
+
     public ArrayList<HashMap<String, Object>> getExpenseTypesList(){
 
         ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
@@ -136,37 +150,37 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
     }
 
 
-    public ArrayList<JSONObject> getTransactionsText() {
-
-        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
-
-        SQLiteDatabase readableDB = getReadableDatabase();
-
-        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_TRANSACTIONLIST, null);
-
-        while (cursor.moveToNext()){
-
-            JSONObject currentMap = new JSONObject();
-
-            try {
-                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)));
-                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)));
-                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)));
-                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, cursor.getDouble(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM)));
-            }catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
-            result.add(currentMap);
-
-        }
-
-        cursor.close();
-        readableDB.close();
-
-        return result;
-
-    }
+//    public ArrayList<JSONObject> getTransactionsText() {
+//
+//        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+//
+//        SQLiteDatabase readableDB = getReadableDatabase();
+//
+//        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_TRANSACTIONLIST, null);
+//
+//        while (cursor.moveToNext()){
+//
+//            JSONObject currentMap = new JSONObject();
+//
+//            try {
+//                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)));
+//                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)));
+//                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)));
+//                currentMap.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, cursor.getDouble(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM)));
+//            }catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//            result.add(currentMap);
+//
+//        }
+//
+//        cursor.close();
+//        readableDB.close();
+//
+//        return result;
+//
+//    }
 
 }

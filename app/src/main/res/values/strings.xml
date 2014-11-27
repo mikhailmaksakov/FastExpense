@@ -12,9 +12,11 @@
     <string name="action_example">Example action</string>
     <string name="action_settings">Настройки</string>
     <string name="new_expense_header_text">Новый</string>
+    <string name="newExpenseNameDialogText">Введите имя нового вида расхода</string>
     <string name="new_expense_ExpenseTypeDefault_text">Выберите вид расхода</string>
     <string name="expenseTypesIsEmptyString">Справочник видов расходов не заполнен</string>
     <string name="expenseTypesDeleteMessage">Удалить элемент справочника?</string>
     <string name="wordYes">Да</string>
+    <string name="wordOK">OK</string>
 
 </resources>

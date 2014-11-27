@@ -29,8 +29,8 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+//import org.json.JSONException;
+//import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +50,8 @@ public class MainActivity extends Activity
     private CharSequence mTitle;
 
     private fastExpenseDatabaseAccessHelper currentDBAccessHelper;
+
+    private expenseTypesListFragment mCurrentExpenseTypesListFragment;
 
 //    private listSelectionFragment mlistSelectionFragment;
 
@@ -92,7 +94,10 @@ public class MainActivity extends Activity
                 currentFragment = new Fragment();
                 break;
             case 4:
-                currentFragment = expenseTypesListFragment.NewExpenseTypesListFragment();
+                if (mCurrentExpenseTypesListFragment == null){
+                    mCurrentExpenseTypesListFragment = expenseTypesListFragment.NewExpenseTypesListFragment();
+                }
+                currentFragment = mCurrentExpenseTypesListFragment;
                 break;
         }
 
@@ -156,48 +161,48 @@ public class MainActivity extends Activity
                 break;
             case 4:
 
-                String currentString = "";
-
-                ArrayList result = currentDBAccessHelper.getTransactionsText();
-
-                String[] lvArray = new String[result.size()];
-
-                for (int index = 0; index < result.size(); index++){
-
-                    currentString = "";
-
-                    JSONObject currentMap = (JSONObject) result.get(index);
-
-                    try {
-                        currentString = "time " + currentMap.getString(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)
-                                + "; type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)
-                                + "; transaction type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)
-                                + "; sum " + currentMap.getDouble(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    lvArray[index] = currentString;
-
-                    currentMap = null;
-
-                };
-
-                ArrayAdapter<String> adapter;
-                ListView lv = (ListView)_context.findViewById(R.id.listView);
-
-                try {
-                    adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
-                    lv.setAdapter(adapter);
-
-                } catch (Exception e){
-
-                    Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
-                    toast.show();
-
-                }
-
-                break;
+//                String currentString = "";
+//
+//                ArrayList result = currentDBAccessHelper.getTransactionsText();
+//
+//                String[] lvArray = new String[result.size()];
+//
+//                for (int index = 0; index < result.size(); index++){
+//
+//                    currentString = "";
+//
+//                    JSONObject currentMap = (JSONObject) result.get(index);
+//
+//                    try {
+//                        currentString = "time " + currentMap.getString(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)
+//                                + "; type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)
+//                                + "; transaction type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)
+//                                + "; sum " + currentMap.getDouble(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    lvArray[index] = currentString;
+//
+//                    currentMap = null;
+//
+//                };
+//
+//                ArrayAdapter<String> adapter;
+//                ListView lv = (ListView)_context.findViewById(R.id.listView);
+//
+//                try {
+//                    adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
+//                    lv.setAdapter(adapter);
+//
+//                } catch (Exception e){
+//
+//                    Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
+//                    toast.show();
+//
+//                }
+//
+//                break;
         }
 
     }
@@ -413,6 +418,10 @@ public class MainActivity extends Activity
 
         private ArrayList<HashMap<String, Object>> mExpenseTypesListData;
 
+        private SimpleAdapter mCurrentListAdapter;
+
+        private ListView mCurrentListView;
+
         public expenseTypesListFragment() {
 
         }
@@ -431,7 +440,8 @@ public class MainActivity extends Activity
             super.onAttach(activity);
 
             mcurrentDBAccessHelper = ((MainActivity) activity).currentDBAccessHelper;
-            renewExpenseTypesList();
+
+//            renewExpenseTypesList();
             setHasOptionsMenu(true);
             setRetainInstance(true);
 
@@ -452,30 +462,11 @@ public class MainActivity extends Activity
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(LIST_LAYOUT, container, false);
+            mCurrentListView = (ListView)rootView.findViewById(R.id.expenseTypesList);
 
-            ListView currentListView = (ListView)rootView.findViewById(R.id.expenseTypesList);
+            renewExpenseTypesList();
 
-//            ArrayList<HashMap<String, Object>> result = mcurrentDBAccessHelper.getExpenseTypesList();
-
-//            String[] lvEmptyArray = new String[1];
-//
-//            lvEmptyArray[0] = getString(R.string.expenseTypesIsEmptyString);
-//
-//            ArrayAdapter<String> emptyAdapter;
-//            emptyAdapter = new ArrayAdapter<String>(getActivity(), LIST_ITEM_LAYOUT, lvEmptyArray);
-
-            SimpleAdapter listAdapter = new SimpleAdapter(currentListView.getContext().getApplicationContext(), mExpenseTypesListData, LIST_ITEM_LAYOUT, new String[]{mcurrentDBAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {LIST_ITEM_ID});
-
-            listAdapter.notifyDataSetChanged();
-
-            if (mExpenseTypesListData.size() == 0){
-//                currentListView.setAdapter(emptyAdapter);
-            }
-            else{
-                currentListView.setAdapter(listAdapter);
-            }
-
-            currentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            mCurrentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Toast.makeText(getActivity().getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
@@ -483,7 +474,7 @@ public class MainActivity extends Activity
                 }
             });
 
-            currentListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            mCurrentListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
 
@@ -500,26 +491,11 @@ public class MainActivity extends Activity
                        }
                     });
 
-                    adapter.notifyDataSetChanged();
+                    renewExpenseTypesList();
 
                     return true;
                 }
             });
-
-//            String currentList = getArguments().getString(ARG_CURRENT_LIST);
-//            int currentTransactionTypeID = getArguments().getInt(ARG_CURRENT_TRANSACTIONTYPEID);
-
-//            View rootView;
-//
-//            rootView = null;
-//
-//            try {
-//                rootView = inflater.inflate(SELECTION_LIST_LAYOUT, container, false);
-//                ((MainActivity) container.getContext()).onCreateSelectionListView(rootView, currentList, currentTransactionTypeID);
-//            }
-//            catch (Exception e){
-//                Toast.makeText(((MainActivity) container.getContext()), e.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
 
             return rootView;
 
@@ -529,17 +505,68 @@ public class MainActivity extends Activity
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             if (!((MainActivity) getActivity()).mNavigationDrawerFragment.isDrawerOpen()) {
                 inflater.inflate(R.menu.fastexpensetypeslistmenu, menu);
+
+//                View newExpenseButton = (View)this.getActivity().findViewById(R.id.newExpense);
+//
+//                newExpenseButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        newExpenseRequest();
+//                    }
+//                });
+
             }
             else
                 super.onCreateOptionsMenu(menu, inflater);
         }
 
-        private void renewExpenseTypesList(){
-            mExpenseTypesListData = mcurrentDBAccessHelper.getExpenseTypesList();
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            if (item.getItemId() == R.id.newExpense){
+                newExpenseRequest();
+                return true;
+            }
+            else
+                return super.onOptionsItemSelected(item);
         }
 
+        private void renewExpenseTypesList(){
+
+            mExpenseTypesListData = mcurrentDBAccessHelper.getExpenseTypesList();
+            mCurrentListAdapter = new SimpleAdapter(getActivity().getApplicationContext(), mExpenseTypesListData, LIST_ITEM_LAYOUT, new String[]{mcurrentDBAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME}, new int[] {LIST_ITEM_ID});
+            mCurrentListView.setAdapter(mCurrentListAdapter);
+        }
+
+        public void newExpenseRequest(){
+
+            final AlertDialog.Builder request = new AlertDialog.Builder(getActivity());
+
+            final EditText editText = new EditText(getActivity());
+
+            DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    if (!editText.getText().toString().isEmpty()){
+                        mcurrentDBAccessHelper.putExpenseType(editText.getText().toString());
+                        renewExpenseTypesList();
+                    }
+
+                }
+            };
+
+            request.setCancelable(true);
+            request.setMessage(getString(R.string.newExpenseNameDialogText));
+            request.setPositiveButton(getString(R.string.wordOK), clickListener);
+
+            request.setView(editText);
+
+            request.create();
+
+            request.show();
+
+        }
 
     }
-
 
 }
