@@ -128,9 +128,25 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         SQLiteDatabase writableDB = getWritableDatabase();
 
+        writableDB.delete(DATABASE_TABLE_EXPENSETYPES, "_id = ?", new String[]{String.valueOf(_id)});
+
+        // Удалять все связанные расходы или заменить на новый вид расхода
+
+        writableDB.close();
+
+    }
+
+    public void renameExpenseType(int _id, String name) {
+
+        SQLiteDatabase writableDB = getWritableDatabase();
+
         ContentValues values = new ContentValues();
 
-        writableDB.delete(DATABASE_TABLE_EXPENSETYPES, "_id = ?", new String[]{String.valueOf(_id)});
+        values.put(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME, name);
+
+        writableDB.update(DATABASE_TABLE_EXPENSETYPES, values, "_id = ?", new String[]{String.valueOf(_id)});
+
+        // Удалять все связанные расходы или заменить на новый вид расхода
 
         writableDB.close();
 

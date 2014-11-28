@@ -72,8 +72,6 @@ public class MainActivity extends Activity
 
         currentDBAccessHelper = new fastExpenseDatabaseAccessHelper(this);
 
-//        mlistSelectionFragment = new listSelectionFragment();
-
     }
 
     @Override
@@ -423,6 +421,8 @@ public class MainActivity extends Activity
 
         private ListView mCurrentListView;
 
+        private int mListItemToMakeAction;
+
         public expenseTypesListFragment() {
 
         }
@@ -442,7 +442,6 @@ public class MainActivity extends Activity
 
             mcurrentDBAccessHelper = ((MainActivity) activity).currentDBAccessHelper;
 
-//            renewExpenseTypesList();
             setHasOptionsMenu(true);
             setRetainInstance(true);
 
@@ -470,8 +469,8 @@ public class MainActivity extends Activity
             mCurrentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(getActivity().getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
-                    parent.setSelection(position);
+//                    Toast.makeText(getActivity().getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
+//                    parent.setSelection(position);
                 }
             });
 
@@ -484,21 +483,28 @@ public class MainActivity extends Activity
 
                     final SimpleAdapter adapter = ((SimpleAdapter) parent.getAdapter());
 
-                    final int asd = 1;
+                    mListItemToMakeAction = position;
 
                     AlertDialog.Builder question = new AlertDialog.Builder(getActivity());
 
-                    question.setMessage(getString(R.string.expenseTypesDeleteMessage));
+                    question.setMessage(getString(R.string.expenseTypesActionMessage));
                     question.setCancelable(true);
 
-                    DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                    DialogInterface.OnClickListener onDeleteClickListener = new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-//                            mcurrentDBAccessHelper.deleteExpenseType(((HashMap<String, Object>) adapter.getItem(position)));
-                            renewExpenseTypesList();
+                            deleteCurrentExpenseType();
                         }
                     };
-                    question.setPositiveButton(getString(R.string.wordYes), onClickListener);
+                    question.setPositiveButton(getString(R.string.wordDelete), onDeleteClickListener);
+
+                    DialogInterface.OnClickListener onRenameClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            renameExpense();
+                        }
+                    };
+                    question.setNeutralButton(getString(R.string.wordRename), onRenameClickListener);
 
                     question.create();
                     question.show();
@@ -575,6 +581,52 @@ public class MainActivity extends Activity
             request.create();
 
             request.show();
+
+        }
+
+        public void renameExpense(){
+
+            final AlertDialog.Builder request = new AlertDialog.Builder(getActivity());
+
+            final EditText editText = new EditText(getActivity());
+
+            DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    if (!editText.getText().toString().isEmpty()){
+                        mcurrentDBAccessHelper.renameExpenseType(getExpenseListItemId(mListItemToMakeAction), editText.getText().toString());
+                        renewExpenseTypesList();
+                    }
+
+                }
+            };
+
+            request.setCancelable(true);
+            request.setMessage(getString(R.string.newNameOfExpenseDialogText));
+            request.setPositiveButton(getString(R.string.wordOK), clickListener);
+
+            request.setView(editText);
+
+            request.create();
+
+            request.show();
+
+        }
+
+        public void deleteCurrentExpenseType(){
+
+            mcurrentDBAccessHelper.deleteExpenseType(getExpenseListItemId(mListItemToMakeAction));
+            renewExpenseTypesList();
+
+        }
+
+        private int getExpenseListItemId(int position){
+
+            HashMap selectedValue = (HashMap) mCurrentListAdapter.getItem(position);
+            Integer selectedID = (Integer) selectedValue.get(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_ID);
+
+            return selectedID.intValue();
 
         }
 
