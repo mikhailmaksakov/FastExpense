@@ -53,6 +53,7 @@ public class MainActivity extends Activity
     private fastExpenseDatabaseAccessHelper currentDBAccessHelper;
 
     private expenseTypesListFragment mCurrentExpenseTypesListFragment;
+    private expenseFragment mCurrentExpenseFragment;
 
     private static final String EXPENSE_SELECTION_RECEIVER_NEW_EXPENSE = "new_expense";
 
@@ -85,7 +86,10 @@ public class MainActivity extends Activity
                 break;
             case 1:
                 currentFragment = new Fragment();
-                //
+                if (mCurrentExpenseFragment == null){
+                    mCurrentExpenseFragment = expenseFragment.newExpenseFragment();
+                }
+                currentFragment = mCurrentExpenseFragment;
                 break;
             case 2:
                 currentFragment = new Fragment();
