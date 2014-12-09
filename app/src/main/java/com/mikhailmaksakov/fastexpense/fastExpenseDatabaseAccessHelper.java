@@ -152,6 +152,24 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
+    public String getExpenseTypeNameByID(int expenseTypeID){
+
+        String result = "";
+
+        SQLiteDatabase readableDB = getReadableDatabase();
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_EXPENSETYPES + " WHERE _id = ?", new String[] {String.valueOf(expenseTypeID)});
+
+        if (cursor.moveToNext()){
+            result = cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME));
+        }
+
+        cursor.close();
+        readableDB.close();
+
+        return result;
+
+    }
+
     public ArrayList<HashMap<String, Object>> getExpenseTypesList(){
 
         ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();

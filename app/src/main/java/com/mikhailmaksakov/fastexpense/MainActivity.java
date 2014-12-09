@@ -250,6 +250,11 @@ public class MainActivity extends Activity
 
     public void makeToast(String message, int duration){
         Toast.makeText(getApplicationContext(), message, duration).show();
+    }
+
+    public String getExpenseTypeNameByID(int expenseTypeID){
+
+        return currentDBAccessHelper.getExpenseTypeNameByID(expenseTypeID);
 
     }
 
@@ -435,18 +440,9 @@ public class MainActivity extends Activity
             super.onAttach(activity);
 
             setHasOptionsMenu(true);
+            setRetainInstance(true);
 
         }
-
-        //        public expenseTypesListFragment getExpenseTypesListFragment(){
-
-//            Bundle args = new Bundle();
-//            args.putString(ARG_CURRENT_LIST, ARG_LIST_EXPENSE);
-//            args.putInt(ARG_CURRENT_TRANSACTIONTYPEID, currentTransactionTypeID);
-//            this.setArguments(args);
-//            return this;
-
-//        };
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -459,14 +455,24 @@ public class MainActivity extends Activity
 
             renewExpenseTypesList();
 
-            if (getArguments().getBoolean(ARG_SELECTION_MODE) == true) {
+            if (getArguments().getBoolean(ARG_SELECTION_MODE)) {
 
                 mCurrentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-//                        Toast.makeText(getActivity().getApplicationContext(), parent.getAdapter().getItem(position).toString(), Toast.LENGTH_SHORT).show();
-//                        parent.setSelection(position);
+                        Bundle args = new Bundle();
+                        args.putInt("ExpenseTypeID", getExpenseListItemId(position));
+
+                        MainActivity mainActivity = (MainActivity) getActivity();
+
+                        mainActivity.mCurrentExpenseFragment.setArguments(args);
+
+                        FragmentManager fragmentManager = getFragmentManager();
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.container, mainActivity.mCurrentExpenseFragment)
+                                .commit();
+
                     }
                 });
 
@@ -633,6 +639,8 @@ public class MainActivity extends Activity
 
         private int mListItemToMakeAction;
 
+        private MainActivity mMainActivity;
+
         public expenseFragment() {
 
         }
@@ -662,7 +670,9 @@ public class MainActivity extends Activity
 
             final View rootView = inflater.inflate(LAYOUT, container, false);
 
-            mcurrentDBAccessHelper = ((MainActivity) getActivity()).currentDBAccessHelper;
+            mMainActivity = (MainActivity) getActivity();
+
+            mcurrentDBAccessHelper = mMainActivity.currentDBAccessHelper;
 
             expenseTypeSelectionField = (EditText)rootView.findViewById(R.id.newExpense_ExpenseType_edit);
 
@@ -672,9 +682,9 @@ public class MainActivity extends Activity
 
                     expenseTypesListFragment expenseTypesListFragment = MainActivity.expenseTypesListFragment.NewExpenseTypeSelectionListFragment();
 
-                    Bundle args = new Bundle();
-//                    args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-                    expenseTypesListFragment.setArguments(args);
+//                    Bundle args = new Bundle();
+//                    args.putBoolean(mMainActivity., true);
+//                    expenseTypesListFragment.setArguments(args);
 
                     // update the main content by replacing fragments
                     FragmentManager fragmentManager = getFragmentManager();
@@ -684,16 +694,22 @@ public class MainActivity extends Activity
                 }
             });
 
-//            public void OnClick_newExpense_ExpenseType(View view) {
-
-//        // update the main content by replacing fragments
-//        FragmentManager fragmentManager = getFragmentManager();
-//        fragmentManager.beginTransaction()
-//                .replace(R.id.container, mlistSelectionFragment.getExpenseSelectionFragment(0))
-//                .commit();
-
-//            }
             return rootView;
+
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+
+            if (getArguments() != null && getArguments().containsKey("ExpenseTypeID")){
+
+                EditText et = (EditText)getActivity().findViewById(R.id.newExpense_ExpenseType_edit);
+
+                et.setText(mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
+//                ((MainActivity) getActivity()).makeToast(String.valueOf(getArguments().getInt("ExpenseTypeID")), Toast.LENGTH_SHORT);
+            }
+
 
         }
 
