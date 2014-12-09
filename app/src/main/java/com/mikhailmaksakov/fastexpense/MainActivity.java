@@ -14,6 +14,7 @@ import android.support.v4.app.DialogFragment;
 import android.text.Layout;
 import android.text.method.CharacterPickerDialog;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -641,6 +642,9 @@ public class MainActivity extends Activity
 
         private MainActivity mMainActivity;
 
+        private HashMap<String, Object> mSelectedExpenseType;
+        private Float mSelectedSum;
+
         public expenseFragment() {
 
         }
@@ -694,6 +698,23 @@ public class MainActivity extends Activity
                 }
             });
 
+            rootView.findViewById(R.id.new_Expense_Sum_edit).setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if (event.getAction() == event.ACTION_UP && !((EditText)v).getText().toString().isEmpty())
+                        mSelectedSum = Float.parseFloat(((EditText)v).getText().toString());
+
+                    return false;
+                }
+            });
+
+
+            if (getArguments() != null && getArguments().containsKey("ExpenseTypeID")){
+                mSelectedExpenseType = new HashMap<String, Object>();
+                mSelectedExpenseType.put("_id", getArguments().getInt("ExpenseTypeID"));
+                mSelectedExpenseType.put("name", mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
+            }
+
             return rootView;
 
         }
@@ -702,14 +723,10 @@ public class MainActivity extends Activity
         public void onStart() {
             super.onStart();
 
-            if (getArguments() != null && getArguments().containsKey("ExpenseTypeID")){
-
+            if (mSelectedExpenseType != null){
                 EditText et = (EditText)getActivity().findViewById(R.id.newExpense_ExpenseType_edit);
-
-                et.setText(mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
-//                ((MainActivity) getActivity()).makeToast(String.valueOf(getArguments().getInt("ExpenseTypeID")), Toast.LENGTH_SHORT);
+                et.setText(mSelectedExpenseType.get("name").toString());
             }
-
 
         }
 
@@ -732,6 +749,14 @@ public class MainActivity extends Activity
                 return super.onOptionsItemSelected(item);
         }
 
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+
+            if (mSelectedSum != null)
+                mMainActivity.makeToast(mSelectedSum.toString(), Toast.LENGTH_LONG);
+
+        }
     }
 
 }
