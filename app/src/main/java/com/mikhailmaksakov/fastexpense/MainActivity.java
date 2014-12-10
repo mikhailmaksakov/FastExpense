@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.Layout;
+import android.text.format.DateFormat;
 import android.text.method.CharacterPickerDialog;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 //import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -238,6 +240,16 @@ public class MainActivity extends Activity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // save all changes if they haven't been saved before
+        if (mCurrentExpenseFragment != null && !mCurrentExpenseFragment.mChangesSaved){
+            mCurrentExpenseFragment.saveChangesToDatabase();
+        }
     }
 
     @Override
@@ -530,7 +542,7 @@ public class MainActivity extends Activity
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getItemId() == R.id.newExpense){
+            if (item.getItemId() == R.id.newExpenseType){
                 newExpenseRequest();
                 return true;
             }
@@ -627,23 +639,15 @@ public class MainActivity extends Activity
     public static class expenseFragment extends Fragment{
 
         private static final int LAYOUT = R.layout.fragment_new_expense;
-        private static final int LIST_ITEM_LAYOUT = R.layout.expensetypeslistitem;
-        private static final int LIST_ITEM_ID = R.id.expenseTypesListItem;
-
-        private fastExpenseDatabaseAccessHelper mcurrentDBAccessHelper;
-
-        private ArrayList<HashMap<String, Object>> mExpenseTypesListData;
-
-        private SimpleAdapter mCurrentListAdapter;
-
-        private ListView mCurrentListView;
-
-        private int mListItemToMakeAction;
 
         private MainActivity mMainActivity;
 
+        private int mCurrentOperationID;
+        private String mCurrentOperationDateTimeStamp;
         private HashMap<String, Object> mSelectedExpenseType;
         private Float mSelectedSum;
+
+        public boolean mChangesSaved = true;
 
         public expenseFragment() {
 
@@ -676,8 +680,6 @@ public class MainActivity extends Activity
 
             mMainActivity = (MainActivity) getActivity();
 
-            mcurrentDBAccessHelper = mMainActivity.currentDBAccessHelper;
-
             expenseTypeSelectionField = (EditText)rootView.findViewById(R.id.newExpense_ExpenseType_edit);
 
             expenseTypeSelectionField.setOnClickListener(new View.OnClickListener() {
@@ -701,9 +703,10 @@ public class MainActivity extends Activity
             rootView.findViewById(R.id.new_Expense_Sum_edit).setOnKeyListener(new View.OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (event.getAction() == event.ACTION_UP && !((EditText)v).getText().toString().isEmpty())
-                        mSelectedSum = Float.parseFloat(((EditText)v).getText().toString());
-
+                    if (event.getAction() == event.ACTION_UP && !((EditText)v).getText().toString().isEmpty()) {
+                        mSelectedSum = Float.parseFloat(((EditText) v).getText().toString());
+                        mChangesSaved = false;
+                    }
                     return false;
                 }
             });
@@ -713,9 +716,22 @@ public class MainActivity extends Activity
                 mSelectedExpenseType = new HashMap<String, Object>();
                 mSelectedExpenseType.put("_id", getArguments().getInt("ExpenseTypeID"));
                 mSelectedExpenseType.put("name", mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
+                mChangesSaved = false;
             }
 
+            if (mChangesSaved)
+                clearNewExpense();
+
             return rootView;
+
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+
+            if (mChangesSaved)
+                clearNewExpense();
 
         }
 
@@ -723,17 +739,14 @@ public class MainActivity extends Activity
         public void onStart() {
             super.onStart();
 
-            if (mSelectedExpenseType != null){
-                EditText et = (EditText)getActivity().findViewById(R.id.newExpense_ExpenseType_edit);
-                et.setText(mSelectedExpenseType.get("name").toString());
-            }
+            showSavedData();
 
         }
 
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            if (!((MainActivity) getActivity()).mNavigationDrawerFragment.isDrawerOpen()) {
-//                inflater.inflate(R.menu.fastexpensetypeslistmenu, menu);
+            if (!mMainActivity.mNavigationDrawerFragment.isDrawerOpen()) {
+                inflater.inflate(R.menu.newexpensemenu, menu);
             }
             else
                 super.onCreateOptionsMenu(menu, inflater);
@@ -741,22 +754,64 @@ public class MainActivity extends Activity
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-//            if (item.getItemId() == R.id.newExpense){
-//
-//                return true;
-//            }
-//            else
+            if (item.getItemId() == R.id.newExpense){
+
+                saveChangesToDatabase();
+                clearNewExpense();
+                showSavedData();
+
+                return true;
+            }
+            else
                 return super.onOptionsItemSelected(item);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+
+//            if (mSelectedSum != null)
+//                mMainActivity.makeToast(mSelectedSum.toString(), Toast.LENGTH_LONG);
+
         }
 
         @Override
         public void onDestroy() {
             super.onDestroy();
 
-            if (mSelectedSum != null)
-                mMainActivity.makeToast(mSelectedSum.toString(), Toast.LENGTH_LONG);
+        }
+
+        public void saveChangesToDatabase(){
+            mChangesSaved = true;
+        }
+
+        private void clearNewExpense(){
+
+            mCurrentOperationID = 0;
+            mCurrentOperationDateTimeStamp = (String) DateFormat.format(getString(R.string.operationDateTimeStampFormat), new Date());
+            mSelectedExpenseType = null;
+            mSelectedSum = Float.valueOf(0);
+            mChangesSaved = true;
 
         }
+
+        private void showSavedData(){
+
+            EditText expense = (EditText) getActivity().findViewById(R.id.newExpense_ExpenseType_edit);
+            EditText sum = (EditText)getActivity().findViewById(R.id.new_Expense_Sum_edit);
+
+            if (mSelectedExpenseType != null)
+                expense.setText(mSelectedExpenseType.get("name").toString());
+            else
+                expense.setText(getString(R.string.new_expense_ExpenseTypeDefault_text));
+
+            if (mSelectedSum != null && mSelectedSum.intValue() != 0)
+                sum.setText(mSelectedSum.toString());
+            else
+                sum.setText("");
+
+        }
+
     }
 
 }

@@ -22,5 +22,6 @@
     <string name="wordOK">OK</string>
     <string name="wordDelete">Удалить</string>
     <string name="wordRename">Переименовать</string>
+    <string name="operationDateTimeStampFormat">yyyy-MM-dd kk:mm:ss</string>
 
 </resources>
