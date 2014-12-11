@@ -46,17 +46,17 @@ public class MainActivity extends Activity
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+    public NavigationDrawerFragment mNavigationDrawerFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
 
-    private fastExpenseDatabaseAccessHelper currentDBAccessHelper;
+    public fastExpenseDatabaseAccessHelper currentDBAccessHelper;
 
-    private expenseTypesListFragment mCurrentExpenseTypesListFragment;
-    private expenseFragment mCurrentExpenseFragment;
+    public expenseTypesListFragment mCurrentExpenseTypesListFragment;
+    public expenseFragment mCurrentExpenseFragment;
 
     private static final String EXPENSE_SELECTION_RECEIVER_NEW_EXPENSE = "new_expense";
 
@@ -766,23 +766,13 @@ public class MainActivity extends Activity
                 return super.onOptionsItemSelected(item);
         }
 
-        @Override
-        public void onPause() {
-            super.onPause();
+        public void saveChangesToDatabase() {
 
-//            if (mSelectedSum != null)
-//                mMainActivity.makeToast(mSelectedSum.toString(), Toast.LENGTH_LONG);
+            if (mSelectedExpenseType != null && mSelectedSum != null && mSelectedSum.intValue() != 0) {
+                mMainActivity.currentDBAccessHelper.putExpense(mCurrentOperationDateTimeStamp, (Integer) mSelectedExpenseType.get("_id"), mSelectedSum);
+                mChangesSaved = true;
+            }
 
-        }
-
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-
-        }
-
-        public void saveChangesToDatabase(){
-            mChangesSaved = true;
         }
 
         private void clearNewExpense(){
