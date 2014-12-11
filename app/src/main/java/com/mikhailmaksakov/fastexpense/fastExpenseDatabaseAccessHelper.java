@@ -199,10 +199,15 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         SQLiteDatabase readableDB = getReadableDatabase();
 
-        Cursor cursor = readableDB.rawQuery("SELECT " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " AS DateTime FROM " + DATABASE_TABLE_TRANSACTIONLIST + " ORDER BY _id", null);
+        Cursor cursor = readableDB.rawQuery("SELECT " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " AS DateTime,  FROM " + DATABASE_TABLE_TRANSACTIONLIST + " ORDER BY _id", null);
 
         return cursor;
 
+/*        + " (" + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " VARCHAR(23),"
+                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " INTEGER,"
+                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " INTEGER,"
+                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " DOUBLE"        */
     }
 
 
