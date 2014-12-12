@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.LoaderManager;
+import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+//import android.support.v4.content.CursorLoader;
+//import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,9 +24,11 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class TransactionListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -34,6 +41,8 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 
     private MainActivity mMainActivity;
 
+    private static fastExpenseDatabaseAccessHelper dbAccessHelper;
+
     private ArrayList<HashMap<String, Object>> mExpenseTypesListData;
 
     private SimpleAdapter mCurrentListAdapter;
@@ -41,6 +50,8 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
     private ListView mCurrentListView;
 
     private int mListItemToMakeAction;
+
+    SimpleCursorAdapter scAdapter;
 
     public TransactionListFragment() {
 
@@ -69,14 +80,35 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mMainActivity = (MainActivity) getActivity();
+
+        dbAccessHelper = mMainActivity.currentDBAccessHelper;
+
+//        mCurrentListView = (ListView)getActivity().findViewById(LIST_ID);
+//
+//        fastExpenseDatabaseAccessHelper dbAccessHelper = mMainActivity.currentDBAccessHelper;
+
+        String[] from = new String[] { dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, dbAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME };
+        int[] to = new int[] { R.id.transatcionListItem_ID, R.id.transatcionListItem_DateTime, R.id.transatcionListItem_TransactionType, R.id.transatcionListItem_Sum, R.id.transatcionListItem_TransactionTypeName};
+        scAdapter = new SimpleCursorAdapter(getActivity(), R.layout.transactionlistitem, null, from, to, 0);
+
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(LAYOUT, container, false);
 
-        mMainActivity = (MainActivity) getActivity();
+        ListView transactionList = (ListView) rootView.findViewById(LIST_ID);
+        transactionList.setAdapter(scAdapter);
 
-        mCurrentListView = (ListView)rootView.findViewById(LIST_ID);
+        getLoaderManager().initLoader(0, null, this);
+
+//        mCurrentListView = (ListView)rootView.findViewById(LIST_ID);
 
 //        mcurrentDBAccessHelper = ((MainActivity) getActivity()).currentDBAccessHelper;
 //
@@ -166,16 +198,34 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+        return new MyCursorLoader(mMainActivity, mMainActivity.currentDBAccessHelper);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        scAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
+
+    static class MyCursorLoader extends CursorLoader {
+
+        private fastExpenseDatabaseAccessHelper dbAccessHelper;
+
+        public MyCursorLoader(Context context, fastExpenseDatabaseAccessHelper dbAccessHelper) {
+            super(context);
+            this.dbAccessHelper = dbAccessHelper;
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            Cursor cursor = dbAccessHelper.getTransactionList();
+            return cursor;
+        }
+
+    }
+
 }

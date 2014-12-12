@@ -21,7 +21,7 @@ import java.util.Map;
 public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     private static final String DATABASE_NAME = "fastExpenseDB";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final int TRANSACTIONTYPE_EXPENSE = 1;
     public static final int TRANSACTIONTYPE_REVENUE = 2;
@@ -42,10 +42,10 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
     public static final String DATABASE_TABLE_TRANSACTIONLIST = "operation_list";
 
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID = "_id";
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP = "trancastion_datetime";
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE = "trancastion_type"; // TRANSACTIONTYPE_...
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "trancastion_type_id";
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM = "trancastion_sum";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP = "transaction_datetime";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE = "transaction_type"; // TRANSACTIONTYPE_...
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "transaction_type_id";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM = "transaction_sum";
 
     public fastExpenseDatabaseAccessHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -74,6 +74,16 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        if (newVersion == 2){
+
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_EXPENSETYPES);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_REVENUETYPES);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_TRANSACTIONLIST);
+
+            onCreate(db);
+
+        }
 
     }
 
@@ -199,17 +209,20 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         SQLiteDatabase readableDB = getReadableDatabase();
 
-        Cursor cursor = readableDB.rawQuery("SELECT " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " AS DateTime,  FROM " + DATABASE_TABLE_TRANSACTIONLIST + " ORDER BY _id", null);
+//            Cursor cursor = readableDB.rawQuery("SELECT * from " + DATABASE_TABLE_TRANSACTIONLIST, null);
+        Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
+                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
+                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " ,"
+                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"
+                                                      + " EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " AS " + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " ,"
+                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM
+                                            + " FROM " + DATABASE_TABLE_TRANSACTIONLIST + " AS TR_LIST "
+                                                      + "LEFT JOIN " + DATABASE_TABLE_EXPENSETYPES + " AS EXP_TYPES "
+                                                      + " ON TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID
+                                                      + " = EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " ORDER BY TR_LIST._id", null);
 
         return cursor;
 
-/*        + " (" + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " VARCHAR(23),"
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " INTEGER,"
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " INTEGER,"
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " DOUBLE"        */
     }
-
-
 
 }

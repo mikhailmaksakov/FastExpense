@@ -98,7 +98,7 @@ public class MainActivity extends Activity
                 currentFragment = new Fragment();
                 break;
             case 3:
-                currentFragment = new Fragment();
+                currentFragment = TransactionListFragment.NewTransactionListFragment();
                 break;
             case 4:
                 if (mCurrentExpenseTypesListFragment == null){
@@ -666,6 +666,8 @@ public class MainActivity extends Activity
 
             super.onAttach(activity);
 
+            mMainActivity = (MainActivity) getActivity();
+
             setHasOptionsMenu(true);
 
         }
@@ -678,7 +680,7 @@ public class MainActivity extends Activity
 
             final View rootView = inflater.inflate(LAYOUT, container, false);
 
-            mMainActivity = (MainActivity) getActivity();
+//            mMainActivity = (MainActivity) getActivity();
 
             expenseTypeSelectionField = (EditText)rootView.findViewById(R.id.newExpense_ExpenseType_edit);
 
