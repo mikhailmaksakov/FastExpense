@@ -88,14 +88,12 @@ public class MainActivity extends Activity
                 currentFragment = new Fragment();
                 break;
             case 1:
-                currentFragment = new Fragment();
                 if (mCurrentExpenseFragment == null){
                     mCurrentExpenseFragment = expenseFragment.newExpenseFragment();
                 }
                 currentFragment = mCurrentExpenseFragment;
                 break;
             case 2:
-                currentFragment = new Fragment();
                 break;
             case 3:
                 currentFragment = TransactionListFragment.NewTransactionListFragment();

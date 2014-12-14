@@ -211,7 +211,7 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
 //            Cursor cursor = readableDB.rawQuery("SELECT * from " + DATABASE_TABLE_TRANSACTIONLIST, null);
         Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
-                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
+                                                      + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " ,"
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"
                                                       + " EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " AS " + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " ,"

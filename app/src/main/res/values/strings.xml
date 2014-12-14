@@ -14,7 +14,7 @@
     <string name="new_expense_header_text">Новый</string>
     <string name="newExpenseNameDialogText">Введите имя нового вида расхода</string>
     <string name="newNameOfExpenseDialogText">Введите новое имя для вида расхода</string>
-    <string name="new_expense_ExpenseTypeDefault_text">Выберите вид расхода</string>
+    <string name="new_expense_ExpenseTypeDefault_text">Не выбран</string>
     <string name="expenseTypesIsEmptyString">Справочник видов расходов не заполнен</string>
     <string name="expenseTypesDeleteMessage">Удалить элемент справочника?</string>
     <string name="expenseTypesActionMessage">Выберите действие</string>
@@ -23,5 +23,7 @@
     <string name="wordDelete">Удалить</string>
     <string name="wordRename">Переименовать</string>
     <string name="operationDateTimeStampFormat">yyyy-MM-dd kk:mm:ss</string>
+    <string name="expenseselectiontitle">Вид расхода:</string>
+    <string name="sumselectiontitle">Сумма:</string>
 
 </resources>
