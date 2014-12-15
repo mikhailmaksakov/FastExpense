@@ -152,48 +152,6 @@ public class MainActivity extends Activity
                 break;
             case 4:
 
-//                String currentString = "";
-//
-//                ArrayList result = currentDBAccessHelper.getTransactionsText();
-//
-//                String[] lvArray = new String[result.size()];
-//
-//                for (int index = 0; index < result.size(); index++){
-//
-//                    currentString = "";
-//
-//                    JSONObject currentMap = (JSONObject) result.get(index);
-//
-//                    try {
-//                        currentString = "time " + currentMap.getString(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)
-//                                + "; type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE)
-//                                + "; transaction type " + currentMap.getInt(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)
-//                                + "; sum " + currentMap.getDouble(fastExpenseDatabaseAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    lvArray[index] = currentString;
-//
-//                    currentMap = null;
-//
-//                };
-//
-//                ArrayAdapter<String> adapter;
-//                ListView lv = (ListView)_context.findViewById(R.id.listView);
-//
-//                try {
-//                    adapter = new ArrayAdapter<String>(this, R.layout.simple_list_item1, lvArray);
-//                    lv.setAdapter(adapter);
-//
-//                } catch (Exception e){
-//
-//                    Toast toast = Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
-//                    toast.show();
-//
-//                }
-//
-//                break;
         }
 
     }
@@ -246,7 +204,9 @@ public class MainActivity extends Activity
 
         // save all changes if they haven't been saved before
         if (mCurrentExpenseFragment != null && !mCurrentExpenseFragment.mChangesSaved){
-            mCurrentExpenseFragment.saveChangesToDatabase();
+            if (mCurrentExpenseFragment.saveChangesToDatabase())
+                mCurrentExpenseFragment.clearNewExpense();
+
         }
     }
 
@@ -638,6 +598,8 @@ public class MainActivity extends Activity
 
         private static final int LAYOUT = R.layout.fragment_new_expense;
 
+        private static final String ARGKEY_SELECTEDEXPENSETYPEID = "ExpenseTypeID";
+
         private MainActivity mMainActivity;
 
         private int mCurrentOperationID;
@@ -667,6 +629,7 @@ public class MainActivity extends Activity
             mMainActivity = (MainActivity) getActivity();
 
             setHasOptionsMenu(true);
+            setRetainInstance(true);
 
         }
 
@@ -700,23 +663,28 @@ public class MainActivity extends Activity
                 }
             });
 
-            rootView.findViewById(R.id.new_Expense_Sum_edit).setOnKeyListener(new View.OnKeyListener() {
-                @Override
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (event.getAction() == event.ACTION_UP && !((EditText)v).getText().toString().isEmpty()) {
-                        mSelectedSum = Float.parseFloat(((EditText) v).getText().toString());
-                        mChangesSaved = false;
-                    }
-                    return false;
-                }
-            });
+//            rootView.findViewById(R.id.new_Expense_Sum_edit).setOnKeyListener(new View.OnKeyListener() {
+//                @Override
+//                public boolean onKey(View v, int keyCode, KeyEvent event) {
+//                    if (event.getAction() == event.ACTION_UP && !((EditText) v).getText().toString().isEmpty()) {
+//                        mSelectedSum = Float.parseFloat(((EditText) v).getText().toString());
+//                        mChangesSaved = false;
+//                    }
+//                    return false;
+//                }
+//            });
 
 
-            if (getArguments() != null && getArguments().containsKey("ExpenseTypeID")){
+            if (getArguments() != null && getArguments().containsKey(ARGKEY_SELECTEDEXPENSETYPEID)){
+
                 mSelectedExpenseType = new HashMap<String, Object>();
                 mSelectedExpenseType.put("_id", getArguments().getInt("ExpenseTypeID"));
                 mSelectedExpenseType.put("name", mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
+
                 mChangesSaved = false;
+
+                getArguments().remove(ARGKEY_SELECTEDEXPENSETYPEID);
+
             }
 
             if (mChangesSaved)
@@ -730,16 +698,26 @@ public class MainActivity extends Activity
         public void onResume() {
             super.onResume();
 
-            if (mChangesSaved)
-                clearNewExpense();
+//            if (mChangesSaved)
+//                clearNewExpense();
 
         }
 
         @Override
         public void onStart() {
+
             super.onStart();
 
             showSavedData();
+
+        }
+
+        @Override
+        public void onPause() {
+
+            super.onPause();
+
+            SaveSum();
 
         }
 
@@ -754,11 +732,16 @@ public class MainActivity extends Activity
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
+
             if (item.getItemId() == R.id.newExpense){
 
-                saveChangesToDatabase();
-                clearNewExpense();
-                showSavedData();
+                SaveSum();
+
+                // Проверить, что всё заполнено
+                if (saveChangesToDatabase()) {
+                    clearNewExpense();
+                    showSavedData();
+                }
 
                 return true;
             }
@@ -766,12 +749,15 @@ public class MainActivity extends Activity
                 return super.onOptionsItemSelected(item);
         }
 
-        public void saveChangesToDatabase() {
+        public Boolean saveChangesToDatabase() {
 
-            if (mSelectedExpenseType != null && mSelectedSum != null && mSelectedSum.intValue() != 0) {
+            if (mSelectedExpenseType != null && mSelectedSum != null && mSelectedSum.intValue() != 0 && mSelectedExpenseType != null ) {
                 mMainActivity.currentDBAccessHelper.putExpense(mCurrentOperationDateTimeStamp, (Integer) mSelectedExpenseType.get("_id"), mSelectedSum);
                 mChangesSaved = true;
+                return true;
             }
+
+            return false;
 
         }
 
@@ -801,6 +787,17 @@ public class MainActivity extends Activity
                 sum.setText("");
 
         }
+
+        private void SaveSum(){
+            EditText v = (EditText)getActivity().findViewById(R.id.new_Expense_Sum_edit);
+
+            if (!v.getText().toString().isEmpty() && Float.parseFloat(((EditText) v).getText().toString()) != mSelectedSum){
+                mSelectedSum = Float.parseFloat(((EditText) v).getText().toString());
+                mChangesSaved =false;
+            }
+
+        }
+
 
     }
 

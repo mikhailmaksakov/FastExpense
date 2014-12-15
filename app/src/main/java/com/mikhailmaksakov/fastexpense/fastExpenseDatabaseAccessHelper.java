@@ -21,7 +21,7 @@ import java.util.Map;
 public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     private static final String DATABASE_NAME = "fastExpenseDB";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public static final int TRANSACTIONTYPE_EXPENSE = 1;
     public static final int TRANSACTIONTYPE_REVENUE = 2;
@@ -39,12 +39,18 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
     public static final String DATABASE_TABLE_REVENUETYPES_FIELD_NAME = "name";
     public static final int DATABASE_TABLE_REVENUETYPES_FIELD_NAME_LENGTH = 100;
 
+    public static final String DATABASE_TABLE_TRANSACTIONTYPES = "revenue_types";
+
+    public static final String DATABASE_TABLE_TRANSACTIONTYPES_FIELD_ID = "_id";
+    public static final String DATABASE_TABLE_TRANSACTIONTYPES_FIELD_NAME = "name";
+    public static final int DATABASE_TABLE_TRANSACTIONTYPES_FIELD_NAME_LENGTH = 100;
+
     public static final String DATABASE_TABLE_TRANSACTIONLIST = "operation_list";
 
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID = "_id";
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP = "transaction_datetime";
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE = "transaction_type"; // TRANSACTIONTYPE_...
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "transaction_type_id";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "transaction_type"; // TRANSACTIONTYPE_...
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID = "transaction_type_id";
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM = "transaction_sum";
 
     public fastExpenseDatabaseAccessHelper(Context context) {
@@ -54,21 +60,7 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL("CREATE TABLE " + DATABASE_TABLE_EXPENSETYPES
-                + " (" + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " VARCHAR(" + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME_LENGTH + ") );");
-
-        db.execSQL("CREATE TABLE " + DATABASE_TABLE_REVENUETYPES
-                + " (" + DATABASE_TABLE_REVENUETYPES_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + DATABASE_TABLE_REVENUETYPES_FIELD_NAME + " VARCHAR(" + DATABASE_TABLE_REVENUETYPES_FIELD_NAME_LENGTH + ") );");
-
-        db.execSQL("CREATE TABLE " + DATABASE_TABLE_TRANSACTIONLIST
-                + " (" + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " VARCHAR(23),"
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " INTEGER,"
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " INTEGER,"
-                + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " DOUBLE"
-                + " );");
+        createTables(db, true, true, true, true);
 
     }
 
@@ -84,6 +76,38 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
             onCreate(db);
 
         }
+        else if (newVersion == 3){
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_TRANSACTIONLIST);
+            createTables(db, false, false, true, true);
+        }
+
+    }
+
+    private void createTables(SQLiteDatabase db, Boolean ExpenseTypes, Boolean RevenueTypes, Boolean TransactionTypes, Boolean TransactionList){
+
+        if (ExpenseTypes)
+            db.execSQL("CREATE TABLE " + DATABASE_TABLE_EXPENSETYPES
+                    + " (" + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " VARCHAR(" + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME_LENGTH + ") );");
+
+        if (RevenueTypes)
+            db.execSQL("CREATE TABLE " + DATABASE_TABLE_REVENUETYPES
+                    + " (" + DATABASE_TABLE_REVENUETYPES_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + DATABASE_TABLE_REVENUETYPES_FIELD_NAME + " VARCHAR(" + DATABASE_TABLE_REVENUETYPES_FIELD_NAME_LENGTH + ") );");
+
+        if (TransactionTypes)
+            db.execSQL("CREATE TABLE " + DATABASE_TABLE_TRANSACTIONTYPES
+                    + " (" + DATABASE_TABLE_TRANSACTIONTYPES_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + DATABASE_TABLE_TRANSACTIONTYPES_FIELD_NAME + " VARCHAR(" + DATABASE_TABLE_TRANSACTIONTYPES_FIELD_NAME_LENGTH + ") );");
+
+        if (TransactionList)
+            db.execSQL("CREATE TABLE " + DATABASE_TABLE_TRANSACTIONLIST
+                    + " (" + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " VARCHAR(23),"
+                    + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " INTEGER,"
+                    + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " INTEGER,"
+                    + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " DOUBLE"
+                    + " );");
 
     }
 
@@ -110,8 +134,8 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
         ContentValues values = new ContentValues();
 
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, timeStamp);
-        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, TRANSACTIONTYPE);
-        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, expenseTypeID);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, TRANSACTIONTYPE);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID, expenseTypeID);
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, sum);
 
         writableDB.insert(DATABASE_TABLE_TRANSACTIONLIST, null, values);
@@ -212,8 +236,8 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 //            Cursor cursor = readableDB.rawQuery("SELECT * from " + DATABASE_TABLE_TRANSACTIONLIST, null);
         Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
                                                       + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
-                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE + " ,"
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"
+                                                      + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " ,"
                                                       + " EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " AS " + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " ,"
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM
                                             + " FROM " + DATABASE_TABLE_TRANSACTIONLIST + " AS TR_LIST "

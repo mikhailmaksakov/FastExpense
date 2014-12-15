@@ -91,8 +91,8 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 //
 //        fastExpenseDatabaseAccessHelper dbAccessHelper = mMainActivity.currentDBAccessHelper;
 
-        String[] from = new String[] { dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPE, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, dbAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME };
-        int[] to = new int[] { R.id.transatcionListItem_ID, R.id.transatcionListItem_DateTime, R.id.transatcionListItem_TransactionType, R.id.transatcionListItem_Sum, R.id.transatcionListItem_TransactionTypeName};
+        String[] from = new String[] { dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, dbAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME };
+        int[] to = new int[] { R.id.transatcionListItem_DateTime, R.id.transatcionListItem_TransactionType, R.id.transatcionListItem_Sum, R.id.transatcionListItem_TransactionTypeName};
         scAdapter = new SimpleCursorAdapter(getActivity(), R.layout.transactionlistitem, null, from, to, 0);
 
     }
