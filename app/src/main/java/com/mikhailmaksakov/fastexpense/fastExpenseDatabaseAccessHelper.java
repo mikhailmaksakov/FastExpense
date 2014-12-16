@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import javax.net.ssl.SSLEngineResult;
 
 /**
  * Created by maksakovMN on 20.11.2014.
@@ -39,7 +42,7 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
     public static final String DATABASE_TABLE_REVENUETYPES_FIELD_NAME = "name";
     public static final int DATABASE_TABLE_REVENUETYPES_FIELD_NAME_LENGTH = 100;
 
-    public static final String DATABASE_TABLE_TRANSACTIONTYPES = "revenue_types";
+    public static final String DATABASE_TABLE_TRANSACTIONTYPES = "transaction_types";
 
     public static final String DATABASE_TABLE_TRANSACTIONTYPES_FIELD_ID = "_id";
     public static final String DATABASE_TABLE_TRANSACTIONTYPES_FIELD_NAME = "name";
@@ -49,8 +52,8 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID = "_id";
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP = "transaction_datetime";
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "transaction_type"; // TRANSACTIONTYPE_...
-    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID = "transaction_type_id";
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID = "transaction_type_id"; // TRANSACTIONTYPE_...
+    public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID = "transaction_item_type_id";
     public static final String DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM = "transaction_sum";
 
     public fastExpenseDatabaseAccessHelper(Context context) {
@@ -111,15 +114,15 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
-    public void putExpense(String timeStamp, int expenseTypeID, float sum) {
+    public int putExpense(String timeStamp, int expenseTypeID, float sum) {
 
-        putTransaction(timeStamp, TRANSACTIONTYPE_EXPENSE, expenseTypeID, sum);
+        return putTransaction(timeStamp, TRANSACTIONTYPE_EXPENSE, expenseTypeID, sum);
 
     }
 
-    public void putRevenue(String timeStamp, int expenseTypeID, float sum) {
+    public int putRevenue(String timeStamp, int expenseTypeID, float sum) {
 
-        putTransaction(timeStamp, TRANSACTIONTYPE_REVENUE, expenseTypeID, sum);
+        return putTransaction(timeStamp, TRANSACTIONTYPE_REVENUE, expenseTypeID, sum);
 
     }
 
@@ -127,7 +130,9 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 //
 //    }
 
-    private void putTransaction(String timeStamp, int TRANSACTIONTYPE, int expenseTypeID, float sum) {
+    private int putTransaction(String timeStamp, int TRANSACTIONTYPE, int expenseTypeID, float sum) {
+
+        int result = 0;
 
         SQLiteDatabase writableDB = getWritableDatabase();
 
@@ -138,9 +143,55 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID, expenseTypeID);
         values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, sum);
 
-        writableDB.insert(DATABASE_TABLE_TRANSACTIONLIST, null, values);
+        long insertedRowID = writableDB.insert(DATABASE_TABLE_TRANSACTIONLIST, null, values);
+
+        Cursor cursor = writableDB.rawQuery("SELECT " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " FROM " + DATABASE_TABLE_TRANSACTIONLIST + " WHERE ROWID = ?", new String[]{Long.toString(insertedRowID)});
+
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            result = cursor.getInt(0);
+        }
 
         writableDB.close();
+
+        return result;
+
+    }
+
+    public HashMap<String, Object> getTransactionParameters(int transactionID){
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        SQLiteDatabase readableDB = getReadableDatabase();
+
+        Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
+                + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
+                + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"
+                + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " ,"
+                + " EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " AS TRANSACTION_ITEM_NAME ,"
+                + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM
+                + " FROM " + DATABASE_TABLE_TRANSACTIONLIST + " AS TR_LIST "
+                + "LEFT JOIN " + DATABASE_TABLE_EXPENSETYPES + " AS EXP_TYPES "
+                + " ON TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID
+                + " = EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " WHERE _id = ?", new String[] {String.valueOf(transactionID)});
+
+//        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_TRANSACTIONLIST + " AS TR_LIST LEFT JOIN  WHERE _id = ?", new String[] {String.valueOf(transactionID)});
+//
+        if (cursor.moveToFirst()){
+
+            result.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID)));
+            result.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID)));
+            result.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID)));
+            result.put("TRANSACTION_ITEM_NAME", cursor.getInt(cursor.getColumnIndex("TRANSACTION_ITEM_NAME")));
+            result.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP)));
+            result.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM)));
+
+        }
+
+        cursor.close();
+        readableDB.close();
+
+        return result;
 
     }
 
@@ -233,7 +284,6 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         SQLiteDatabase readableDB = getReadableDatabase();
 
-//            Cursor cursor = readableDB.rawQuery("SELECT * from " + DATABASE_TABLE_TRANSACTIONLIST, null);
         Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
                                                       + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"

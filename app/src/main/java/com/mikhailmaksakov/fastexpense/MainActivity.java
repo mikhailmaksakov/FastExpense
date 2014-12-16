@@ -8,6 +8,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -663,16 +664,9 @@ public class MainActivity extends Activity
                 }
             });
 
-//            rootView.findViewById(R.id.new_Expense_Sum_edit).setOnKeyListener(new View.OnKeyListener() {
-//                @Override
-//                public boolean onKey(View v, int keyCode, KeyEvent event) {
-//                    if (event.getAction() == event.ACTION_UP && !((EditText) v).getText().toString().isEmpty()) {
-//                        mSelectedSum = Float.parseFloat(((EditText) v).getText().toString());
-//                        mChangesSaved = false;
-//                    }
-//                    return false;
-//                }
-//            });
+            if (mCurrentOperationID != 0){
+                readCurrentOperationData();
+            }
 
 
             if (getArguments() != null && getArguments().containsKey(ARGKEY_SELECTEDEXPENSETYPEID)){
@@ -687,8 +681,8 @@ public class MainActivity extends Activity
 
             }
 
-            if (mChangesSaved)
-                clearNewExpense();
+//            if (mChangesSaved)
+//                clearNewExpense();
 
             return rootView;
 
@@ -722,6 +716,16 @@ public class MainActivity extends Activity
         }
 
         @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+        }
+
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+        }
+
+        @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             if (!mMainActivity.mNavigationDrawerFragment.isDrawerOpen()) {
                 inflater.inflate(R.menu.newexpensemenu, menu);
@@ -752,13 +756,23 @@ public class MainActivity extends Activity
         public Boolean saveChangesToDatabase() {
 
             if (mSelectedExpenseType != null && mSelectedSum != null && mSelectedSum.intValue() != 0 && mSelectedExpenseType != null ) {
-                mMainActivity.currentDBAccessHelper.putExpense(mCurrentOperationDateTimeStamp, (Integer) mSelectedExpenseType.get("_id"), mSelectedSum);
+                mCurrentOperationID = mMainActivity.currentDBAccessHelper.putExpense(mCurrentOperationDateTimeStamp, (Integer) mSelectedExpenseType.get("_id"), mSelectedSum);
                 mChangesSaved = true;
                 return true;
             }
 
             return false;
 
+        }
+
+        private void readCurrentOperationData(){
+            if (mCurrentOperationID != 0){
+
+                HashMap<String, Object> transactionParameters = mMainActivity.currentDBAccessHelper.getTransactionParameters(mCurrentOperationID);
+                
+//                transactionParameters.get(mMainActivity.currentDBAccessHelper.);
+
+            }
         }
 
         private void clearNewExpense(){
