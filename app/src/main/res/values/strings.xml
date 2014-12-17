@@ -23,6 +23,7 @@
     <string name="wordDelete">Удалить</string>
     <string name="wordRename">Переименовать</string>
     <string name="operationDateTimeStampFormat">yyyy-MM-dd kk:mm:ss</string>
+    <string name="operationDateFormat">dd.MM.yyyy</string>
     <string name="expenseselectiontitle">Вид расхода:</string>
     <string name="sumselectiontitle">Сумма:</string>
 

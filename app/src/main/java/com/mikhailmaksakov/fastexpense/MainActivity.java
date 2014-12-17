@@ -603,10 +603,15 @@ public class MainActivity extends Activity
 
         private MainActivity mMainActivity;
 
+        private Transaction mCurrentTransaction;
+
         private int mCurrentOperationID;
         private String mCurrentOperationDateTimeStamp;
         private HashMap<String, Object> mSelectedExpenseType;
         private Float mSelectedSum;
+
+        private EditText mSumEditText;
+
 
         public boolean mChangesSaved = true;
 
@@ -629,6 +634,18 @@ public class MainActivity extends Activity
 
             mMainActivity = (MainActivity) getActivity();
 
+
+            if (mCurrentTransaction == null){
+                mCurrentTransaction = Transaction.getNewExpenseTransaction(mMainActivity);
+            }
+
+            if (getArguments() != null && getArguments().containsKey(ARGKEY_SELECTEDEXPENSETYPEID)){
+
+                mCurrentTransaction.setTransactionItem(getArguments().getInt("ExpenseTypeID"));
+                getArguments().remove(ARGKEY_SELECTEDEXPENSETYPEID);
+
+            }
+
             setHasOptionsMenu(true);
             setRetainInstance(true);
 
@@ -645,6 +662,7 @@ public class MainActivity extends Activity
 //            mMainActivity = (MainActivity) getActivity();
 
             expenseTypeSelectionField = (EditText)rootView.findViewById(R.id.newExpense_ExpenseType_edit);
+            mSumEditText = (EditText)rootView.findViewById(R.id.new_Expense_Sum_edit);
 
             expenseTypeSelectionField.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -664,22 +682,22 @@ public class MainActivity extends Activity
                 }
             });
 
-            if (mCurrentOperationID != 0){
-                readCurrentOperationData();
-            }
+//            if (mCurrentOperationID != 0){
+//                readCurrentOperationData();
+//            }
 
 
-            if (getArguments() != null && getArguments().containsKey(ARGKEY_SELECTEDEXPENSETYPEID)){
-
-                mSelectedExpenseType = new HashMap<String, Object>();
-                mSelectedExpenseType.put("_id", getArguments().getInt("ExpenseTypeID"));
-                mSelectedExpenseType.put("name", mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
-
-                mChangesSaved = false;
-
-                getArguments().remove(ARGKEY_SELECTEDEXPENSETYPEID);
-
-            }
+//            if (getArguments() != null && getArguments().containsKey(ARGKEY_SELECTEDEXPENSETYPEID)){
+//
+//                mSelectedExpenseType = new HashMap<String, Object>();
+//                mSelectedExpenseType.put("_id", getArguments().getInt("ExpenseTypeID"));
+//                mSelectedExpenseType.put("name", mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
+//
+//                mChangesSaved = false;
+//
+//                getArguments().remove(ARGKEY_SELECTEDEXPENSETYPEID);
+//
+//            }
 
 //            if (mChangesSaved)
 //                clearNewExpense();
@@ -692,6 +710,8 @@ public class MainActivity extends Activity
         public void onResume() {
             super.onResume();
 
+//            Transaction tr = Transaction.getNewExpenseTransaction(getActivity());
+
 //            if (mChangesSaved)
 //                clearNewExpense();
 
@@ -702,7 +722,8 @@ public class MainActivity extends Activity
 
             super.onStart();
 
-            showSavedData();
+            showTransactionData();
+//            showSavedData();
 
         }
 
@@ -713,16 +734,8 @@ public class MainActivity extends Activity
 
             SaveSum();
 
-        }
+            mCurrentTransaction.saveTransaction();
 
-        @Override
-        public void onSaveInstanceState(Bundle outState) {
-            super.onSaveInstanceState(outState);
-        }
-
-        @Override
-        public void onConfigurationChanged(Configuration newConfig) {
-            super.onConfigurationChanged(newConfig);
         }
 
         @Override
@@ -741,11 +754,17 @@ public class MainActivity extends Activity
 
                 SaveSum();
 
-                // Проверить, что всё заполнено
-                if (saveChangesToDatabase()) {
-                    clearNewExpense();
-                    showSavedData();
-                }
+                mCurrentTransaction.saveTransaction();
+
+                mCurrentTransaction = Transaction.getNewExpenseTransaction(mMainActivity);
+
+                showTransactionData();
+
+//                // Проверить, что всё заполнено
+//                if (saveChangesToDatabase()) {
+//                    clearNewExpense();
+//                    showSavedData();
+//                }
 
                 return true;
             }
@@ -769,7 +788,7 @@ public class MainActivity extends Activity
             if (mCurrentOperationID != 0){
 
                 HashMap<String, Object> transactionParameters = mMainActivity.currentDBAccessHelper.getTransactionParameters(mCurrentOperationID);
-                
+
 //                transactionParameters.get(mMainActivity.currentDBAccessHelper.);
 
             }
@@ -803,12 +822,31 @@ public class MainActivity extends Activity
         }
 
         private void SaveSum(){
-            EditText v = (EditText)getActivity().findViewById(R.id.new_Expense_Sum_edit);
 
-            if (!v.getText().toString().isEmpty() && Float.parseFloat(((EditText) v).getText().toString()) != mSelectedSum){
-                mSelectedSum = Float.parseFloat(((EditText) v).getText().toString());
-                mChangesSaved =false;
+            if (!mSumEditText.getText().toString().isEmpty()){
+                mCurrentTransaction.setSum(Float.parseFloat(mSumEditText.getText().toString()));
+//                mSelectedSum = Float.parseFloat(mSumEditText.getText().toString());
+//                mChangesSaved =false;
             }
+            else
+                mCurrentTransaction.setSum(Float.valueOf(0));
+
+        }
+
+        private void showTransactionData(){
+
+            EditText expense = (EditText) getActivity().findViewById(R.id.newExpense_ExpenseType_edit);
+            EditText sum = (EditText)getActivity().findViewById(R.id.new_Expense_Sum_edit);
+
+            if (!mCurrentTransaction.getTransactionItemName().isEmpty())
+                expense.setText(mCurrentTransaction.getTransactionItemName());
+            else
+                expense.setText(getString(R.string.new_expense_ExpenseTypeDefault_text));
+
+            if (mCurrentTransaction.getSum().intValue() != 0)
+                sum.setText(mCurrentTransaction.getSum().toString());
+            else
+                sum.setText("");
 
         }
 

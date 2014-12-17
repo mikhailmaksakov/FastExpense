@@ -165,7 +165,8 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
         SQLiteDatabase readableDB = getReadableDatabase();
 
         Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
-                + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
+                + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS TRANSACTION_DATE, "
+                + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ", "
                 + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"
                 + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " ,"
                 + " EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " AS TRANSACTION_ITEM_NAME ,"
@@ -246,6 +247,24 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         if (cursor.moveToNext()){
             result = cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME));
+        }
+
+        cursor.close();
+        readableDB.close();
+
+        return result;
+
+    }
+
+    public String getRevenueTypeNameByID(int revenueTypeID){
+
+        String result = "";
+
+        SQLiteDatabase readableDB = getReadableDatabase();
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_REVENUETYPES + " WHERE _id = ?", new String[] {String.valueOf(revenueTypeID)});
+
+        if (cursor.moveToNext()){
+            result = cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_REVENUETYPES_FIELD_NAME));
         }
 
         cursor.close();
