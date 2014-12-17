@@ -159,6 +159,40 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
+    public void updateExpense(int transactionID, String timeStamp, int expenseTypeID, float sum) {
+
+        SQLiteDatabase writableDB = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, timeStamp);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, TRANSACTIONTYPE_EXPENSE);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID, expenseTypeID);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, sum);
+
+        writableDB.update(DATABASE_TABLE_TRANSACTIONLIST, values, "_id = ?", new String[]{String.valueOf(transactionID)});
+
+        writableDB.close();
+
+    }
+
+    public void updateRevenue(int transactionID, String timeStamp, int revenueTypeID, float sum) {
+
+        SQLiteDatabase writableDB = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP, timeStamp);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID, TRANSACTIONTYPE_REVENUE);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID, revenueTypeID);
+        values.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, sum);
+
+        writableDB.update(DATABASE_TABLE_TRANSACTIONLIST, values, "_id = ?", new String[]{String.valueOf(transactionID)});
+
+        writableDB.close();
+
+    }
+
     public HashMap<String, Object> getTransactionParameters(int transactionID){
 
         HashMap<String, Object> result = new HashMap<>();
@@ -307,12 +341,20 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
         Cursor cursor = readableDB.rawQuery("SELECT " + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID + ", "
                                                       + " strftime('%d.%m.%Y', TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TIMESTAMP + ") AS TRANSACTION_DATE, "
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " ,"
+                                                      + " case "
+                                                      + "    when TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " == " + Transaction.EXPENSE_TRANSACTION_TYPE_ID + " then "
+                                                      + "       '" + Transaction.EXPENSE_TRANSACTION_TYPE_NAME + "'"
+                                                      + "    when TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID + " == " + Transaction.REVENUE_TRANSACTION_TYPE_ID + " then "
+                                                      + "       '" + Transaction.REVENUE_TRANSACTION_TYPE_NAME + "'"
+                                                      + "    else ' ' "
+                                                      + " end "
+                                                      + " AS TRANSACTION_TYPE_NAME ,"
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID + " ,"
                                                       + " EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " AS " + DATABASE_TABLE_EXPENSETYPES_FIELD_NAME + " ,"
                                                       + " TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM + " AS " + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM
                                             + " FROM " + DATABASE_TABLE_TRANSACTIONLIST + " AS TR_LIST "
                                                       + "LEFT JOIN " + DATABASE_TABLE_EXPENSETYPES + " AS EXP_TYPES "
-                                                      + " ON TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID
+                                                      + " ON TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID
                                                       + " = EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " ORDER BY TR_LIST._id", null);
 
         return cursor;

@@ -6,7 +6,7 @@
     <string name="title_section2">Расход</string>
     <string name="title_section3">Перемещение</string>
     <string name="title_section4">Список документов</string>
-    <string name="title_section5">Виды расходов(справочника)</string>
+    <string name="title_section5">Виды расходов</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>

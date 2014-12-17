@@ -19,7 +19,8 @@
             android:layout_height="wrap_content"
             android:text="13.05.2014"
             android:id="@+id/transatcionListItem_DateTime"
-            android:textSize="15dp" />
+            android:textSize="15sp"
+            android:textColor="@android:color/black" />
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -44,8 +45,9 @@
         android:layout_height="wrap_content"
         android:text="Авторасходы"
         android:id="@+id/transatcionListItem_TransactionTypeName"
-        android:textSize="15dp"
-        android:layout_gravity="center_vertical" />
+        android:textSize="20sp"
+        android:layout_gravity="center_vertical"
+        android:textColor="@android:color/black" />
 
     <Space
         android:layout_width="20px"
@@ -60,10 +62,11 @@
             android:layout_height="wrap_content"
             android:text="100.45"
             android:id="@+id/transatcionListItem_Sum"
-            android:textSize="15dp"
+            android:textSize="20sp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:textColor="@android:color/black" />
     </RelativeLayout>
 
 </LinearLayout>

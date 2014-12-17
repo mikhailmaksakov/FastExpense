@@ -203,12 +203,17 @@ public class MainActivity extends Activity
     protected void onPause() {
         super.onPause();
 
-        // save all changes if they haven't been saved before
-        if (mCurrentExpenseFragment != null && !mCurrentExpenseFragment.mChangesSaved){
-            if (mCurrentExpenseFragment.saveChangesToDatabase())
-                mCurrentExpenseFragment.clearNewExpense();
+//        // save all changes if they haven't been saved before
+//        if (mCurrentExpenseFragment != null && !mCurrentExpenseFragment.mChangesSaved){
+//            if (mCurrentExpenseFragment.saveChangesToDatabase())
+//                mCurrentExpenseFragment.clearNewExpense();
+//
+//        }
+    }
 
-        }
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -647,7 +652,7 @@ public class MainActivity extends Activity
             }
 
             setHasOptionsMenu(true);
-            setRetainInstance(true);
+//            setRetainInstance(true);
 
         }
 

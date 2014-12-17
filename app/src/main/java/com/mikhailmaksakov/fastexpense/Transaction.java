@@ -164,8 +164,14 @@ public class Transaction {
             case EXPENSE_TRANSACTION_TYPE_ID:
 
                 if (isExpenseCompleted()) {
-                    mTransactionID = mDBAccessHelper.putExpense(mTimeStamp, mTransactionItemID, mSum);
+
+                    if (mTransactionID == 0)
+                        mTransactionID = mDBAccessHelper.putExpense(mTimeStamp, mTransactionItemID, mSum);
+                    else
+                        mDBAccessHelper.updateExpense(mTransactionID, mTimeStamp, mTransactionItemID, mSum);
+
                     mDataModified = false;
+
                 }
                 else
                     result = SAVE_RESULT_ERROR_FIELDS_INCOMPLETE;
@@ -175,8 +181,14 @@ public class Transaction {
             case REVENUE_TRANSACTION_TYPE_ID:
 
                 if (isRevenueCompleted()) {
-                    mTransactionID = mDBAccessHelper.putRevenue(mTimeStamp, mTransactionItemID, mSum);
+
+                    if (mTransactionID == 0)
+                        mTransactionID = mDBAccessHelper.putRevenue(mTimeStamp, mTransactionItemID, mSum);
+                    else
+                        mDBAccessHelper.updateRevenue(mTransactionID, mTimeStamp, mTransactionItemID, mSum);
+
                     mDataModified = false;
+
                 }
                 else
                     result = SAVE_RESULT_ERROR_FIELDS_INCOMPLETE;
