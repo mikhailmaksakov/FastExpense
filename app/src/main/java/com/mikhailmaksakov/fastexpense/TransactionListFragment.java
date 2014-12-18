@@ -1,48 +1,42 @@
 package com.mikhailmaksakov.fastexpense;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-//import android.support.v4.content.CursorLoader;
-//import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class TransactionListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LAYOUT = R.layout.transactionlist;
     private static final int LIST_ID = R.id.transactionList;
-    private static final int LIST_ITEM_LAYOUT = R.layout.expensetypeslistitem;
-    private static final int LIST_ITEM_ID = R.id.expenseTypesListItem;
+
+    private static final int LIST_ITEM_LAYOUT = R.layout.transactionlistitem;
+/*    private static final int LIST_ITEM_ID = R.id.expenseTypesListItem;
 
     private static final String ARG_SELECTION_MODE = "selection_mode";
+*/
 
     private MainActivity mMainActivity;
 
-    private static fastExpenseDatabaseAccessHelper dbAccessHelper;
+    private fastExpenseDatabaseAccessHelper dbAccessHelper;
 
+/*
     private ArrayList<HashMap<String, Object>> mExpenseTypesListData;
 
     private SimpleAdapter mCurrentListAdapter;
@@ -50,6 +44,7 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
     private ListView mCurrentListView;
 
     private int mListItemToMakeAction;
+*/
 
     SimpleCursorAdapter scAdapter;
 
@@ -87,13 +82,9 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 
         dbAccessHelper = mMainActivity.currentDBAccessHelper;
 
-//        mCurrentListView = (ListView)getActivity().findViewById(LIST_ID);
-//
-//        fastExpenseDatabaseAccessHelper dbAccessHelper = mMainActivity.currentDBAccessHelper;
-
         String[] from = new String[] { "TRANSACTION_DATE", "TRANSACTION_TYPE_NAME", dbAccessHelper.DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONSUM, dbAccessHelper.DATABASE_TABLE_EXPENSETYPES_FIELD_NAME };
         int[] to = new int[] { R.id.transatcionListItem_DateTime, R.id.transatcionListItem_TransactionType, R.id.transatcionListItem_Sum, R.id.transatcionListItem_TransactionTypeName};
-        scAdapter = new SimpleCursorAdapter(getActivity(), R.layout.transactionlistitem, null, from, to, 0);
+        scAdapter = new SimpleCursorAdapter(getActivity(), LIST_ITEM_LAYOUT, null, from, to, 0);
 
     }
 
@@ -105,8 +96,6 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 
         ListView transactionList = (ListView) rootView.findViewById(LIST_ID);
         transactionList.setAdapter(scAdapter);
-
-        getLoaderManager().initLoader(0, null, this);
 
 //        mCurrentListView = (ListView)rootView.findViewById(LIST_ID);
 
@@ -174,6 +163,15 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 //        });
 
         return rootView;
+
+    }
+
+    @Override
+    public void onStart() {
+
+        super.onStart();
+
+        getLoaderManager().initLoader(0, null, this);
 
     }
 

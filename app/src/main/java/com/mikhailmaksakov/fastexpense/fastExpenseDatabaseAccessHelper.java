@@ -6,21 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-//import org.json.JSONException;
-//import org.json.JSONObject;
-
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
-import javax.net.ssl.SSLEngineResult;
-
-/**
- * Created by maksakovMN on 20.11.2014.
- */
 public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     private static final String DATABASE_NAME = "fastExpenseDB";
@@ -211,8 +199,6 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
                 + " ON TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONTYPEID
                 + " = EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " WHERE _id = ?", new String[] {String.valueOf(transactionID)});
 
-//        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_TRANSACTIONLIST + " AS TR_LIST LEFT JOIN  WHERE _id = ?", new String[] {String.valueOf(transactionID)});
-//
         if (cursor.moveToFirst()){
 
             result.put(DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_TRANSACTIONLIST_FIELD_ID)));
@@ -267,8 +253,6 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
         writableDB.update(DATABASE_TABLE_EXPENSETYPES, values, "_id = ?", new String[]{String.valueOf(_id)});
 
-        // Удалять все связанные расходы или заменить на новый вид расхода
-
         writableDB.close();
 
     }
@@ -309,30 +293,30 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
 
     }
 
-    public ArrayList<HashMap<String, Object>> getExpenseTypesList(){
-
-        ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
-
-        SQLiteDatabase readableDB = getReadableDatabase();
-        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_EXPENSETYPES + " ORDER BY _id", null);
-
-        while (cursor.moveToNext()){
-
-            HashMap<String, Object> currentMap = new HashMap<String, Object>();
-
-            currentMap.put(DATABASE_TABLE_EXPENSETYPES_FIELD_ID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_ID)));
-            currentMap.put(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME)));
-
-            result.add(currentMap);
-
-        }
-
-        cursor.close();
-        readableDB.close();
-
-        return result;
-
-    }
+//    public ArrayList<HashMap<String, Object>> getExpenseTypesList(){
+//
+//        ArrayList<HashMap<String, Object>> result = new ArrayList<HashMap<String, Object>>();
+//
+//        SQLiteDatabase readableDB = getReadableDatabase();
+//        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_EXPENSETYPES + " ORDER BY _id", null);
+//
+//        while (cursor.moveToNext()){
+//
+//            HashMap<String, Object> currentMap = new HashMap<String, Object>();
+//
+//            currentMap.put(DATABASE_TABLE_EXPENSETYPES_FIELD_ID, cursor.getInt(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_ID)));
+//            currentMap.put(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME, cursor.getString(cursor.getColumnIndex(DATABASE_TABLE_EXPENSETYPES_FIELD_NAME)));
+//
+//            result.add(currentMap);
+//
+//        }
+//
+//        cursor.close();
+//        readableDB.close();
+//
+//        return result;
+//
+//    }
 
     public Cursor getTransactionList(){
 
@@ -356,6 +340,16 @@ public class fastExpenseDatabaseAccessHelper extends SQLiteOpenHelper{
                                                       + "LEFT JOIN " + DATABASE_TABLE_EXPENSETYPES + " AS EXP_TYPES "
                                                       + " ON TR_LIST." + DATABASE_TABLE_TRANSACTIONLIST_FIELD_TRANSACTIONITEMTYPEID
                                                       + " = EXP_TYPES." + DATABASE_TABLE_EXPENSETYPES_FIELD_ID + " ORDER BY TR_LIST._id", null);
+
+        return cursor;
+
+    }
+
+    public Cursor getExpenseTypesList(){
+
+        SQLiteDatabase readableDB = getReadableDatabase();
+
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + DATABASE_TABLE_EXPENSETYPES + " ORDER BY _id", null);
 
         return cursor;
 

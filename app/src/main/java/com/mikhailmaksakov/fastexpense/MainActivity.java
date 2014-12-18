@@ -9,14 +9,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.text.Layout;
-import android.text.format.DateFormat;
-import android.text.method.CharacterPickerDialog;
-import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,18 +19,12 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
-//import org.json.JSONException;
-//import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 
@@ -56,10 +43,8 @@ public class MainActivity extends Activity
 
     public fastExpenseDatabaseAccessHelper currentDBAccessHelper;
 
-    public expenseTypesListFragment mCurrentExpenseTypesListFragment;
+    public ExpenseTypesListFragment mCurrentExpenseTypesListFragment;
     public expenseFragment mCurrentExpenseFragment;
-
-    private static final String EXPENSE_SELECTION_RECEIVER_NEW_EXPENSE = "new_expense";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +86,7 @@ public class MainActivity extends Activity
                 break;
             case 4:
                 if (mCurrentExpenseTypesListFragment == null){
-                    mCurrentExpenseTypesListFragment = expenseTypesListFragment.NewExpenseTypesListFragment();
+                    mCurrentExpenseTypesListFragment = ExpenseTypesListFragment.NewExpenseTypesListFragment();
                 }
                 currentFragment = mCurrentExpenseTypesListFragment;
                 break;
@@ -142,28 +127,6 @@ public class MainActivity extends Activity
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    public void onCreateMainSectionView(final View _context, int number){
-
-        switch (number) {
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-
-        }
-
-    }
-
-    public void onCreateSelectionListView(final View listSelectionView, String currentList, int currentTransactionTypeID){
-
-    }
-
-    public void onMainSectionPause(View view){
-    }
-
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -200,23 +163,6 @@ public class MainActivity extends Activity
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-
-//        // save all changes if they haven't been saved before
-//        if (mCurrentExpenseFragment != null && !mCurrentExpenseFragment.mChangesSaved){
-//            if (mCurrentExpenseFragment.saveChangesToDatabase())
-//                mCurrentExpenseFragment.clearNewExpense();
-//
-//        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
     protected void onDestroy() {
 
         super.onDestroy();
@@ -229,142 +175,80 @@ public class MainActivity extends Activity
         Toast.makeText(getApplicationContext(), message, duration).show();
     }
 
+/*
     public String getExpenseTypeNameByID(int expenseTypeID){
 
         return currentDBAccessHelper.getExpenseTypeNameByID(expenseTypeID);
 
     }
 
+*/
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                    Bundle savedInstanceState) {
-
-            int currentSection = getArguments().getInt(ARG_SECTION_NUMBER);
-
-            int currentLayout = R.layout.fragment_main;
-
-            switch (currentSection){
-                case 1:
-                    break;
-                case 2:
-                    currentLayout = R.layout.fragment_new_expense;
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-            }
-
-            View rootView = inflater.inflate(currentLayout, container, false);
-            ((MainActivity) container.getContext()).onCreateMainSectionView(rootView, getArguments().getInt(ARG_SECTION_NUMBER));
-
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
-        }
-
-        @Override
-        public void onPause() {
-            super.onPause();
-            ((MainActivity) this.getView().getContext()).onMainSectionPause(this.getView());
-        }
-    }
-
-    public static class listSelectionFragment extends Fragment{
-
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        private static final String ARG_CURRENT_LIST = "current_list";
-        private static final String ARG_CURRENT_TRANSACTIONTYPEID = "current_transaction_type_id";
-
-        private static final String ARG_LIST_EXPENSE = "list_expense";
-        private static final String ARG_LIST_REVENUE = "list_revenue";
-
-        private static final int SELECTION_LIST_LAYOUT = R.layout.selectionlist;
-
-        private String currentList;
-        private int currentTransactionTypeID;
-
-        public listSelectionFragment() {
-        }
-
-        public listSelectionFragment getExpenseSelectionFragment(int currentTransactionTypeID){
-
-            Bundle args = new Bundle();
-            args.putString(ARG_CURRENT_LIST, ARG_LIST_EXPENSE);
-            args.putInt(ARG_CURRENT_TRANSACTIONTYPEID, currentTransactionTypeID);
-            this.setArguments(args);
-            return this;
-
-        };
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-
-            String currentList = getArguments().getString(ARG_CURRENT_LIST);
-            int currentTransactionTypeID = getArguments().getInt(ARG_CURRENT_TRANSACTIONTYPEID);
-
-//            int currentLayout = R.layout.selectionlist;
+//    public static class PlaceholderFragment extends Fragment {
+//        /**
+//         * The fragment argument representing the section number for this
+//         * fragment.
+//         */
+//        private static final String ARG_SECTION_NUMBER = "section_number";
 //
-//            switch (currentList){
-//                case ARG_LIST_EXPENSE:
+//        /**
+//         * Returns a new instance of this fragment for the given section
+//         * number.
+//         */
+//        public static PlaceholderFragment newInstance(int sectionNumber) {
+//            PlaceholderFragment fragment = new PlaceholderFragment();
+//            Bundle args = new Bundle();
+//            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+//            fragment.setArguments(args);
+//            return fragment;
+//        }
+//
+//        public PlaceholderFragment() {
+//
+//        }
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                    Bundle savedInstanceState) {
+//
+//            int currentSection = getArguments().getInt(ARG_SECTION_NUMBER);
+//
+//            int currentLayout = R.layout.fragment_main;
+//
+//            switch (currentSection){
+//                case 1:
 //                    break;
-//                case ARG_LIST_REVENUE:
-//                    currentLayout = SELECTION_LIST_LAYOUT;
+//                case 2:
+//                    currentLayout = R.layout.fragment_new_expense;
 //                    break;
 //                case 3:
 //                    break;
 //                case 4:
 //                    break;
 //            }
+//
+//            View rootView = inflater.inflate(currentLayout, container, false);
+//            ((MainActivity) container.getContext()).onCreateMainSectionView(rootView, getArguments().getInt(ARG_SECTION_NUMBER));
+//
+//            return rootView;
+//        }
+//
+//        @Override
+//        public void onAttach(Activity activity) {
+//            super.onAttach(activity);
+//            ((MainActivity) activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
+//        }
+//
+//        @Override
+//        public void onPause() {
+//            super.onPause();
+//            ((MainActivity) this.getView().getContext()).onMainSectionPause(this.getView());
+//        }
+//    }
 
-            View rootView;
-
-            rootView = null;
-
-            try {
-                rootView = inflater.inflate(SELECTION_LIST_LAYOUT, container, false);
-                ((MainActivity) container.getContext()).onCreateSelectionListView(rootView, currentList, currentTransactionTypeID);
-            }
-            catch (Exception e){
-                Toast.makeText(((MainActivity) container.getContext()), e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-            return rootView;
-
-        }
-    }
-
+/*
     public static class expenseTypesListFragment extends Fragment{
 
         private static final int LIST_LAYOUT = R.layout.expensetypeslist;
@@ -417,7 +301,7 @@ public class MainActivity extends Activity
             super.onAttach(activity);
 
             setHasOptionsMenu(true);
-            setRetainInstance(true);
+//            setRetainInstance(true);
 
         }
 
@@ -599,6 +483,7 @@ public class MainActivity extends Activity
         }
 
     }
+*/
 
     public static class expenseFragment extends Fragment{
 
@@ -610,15 +495,15 @@ public class MainActivity extends Activity
 
         private Transaction mCurrentTransaction;
 
-        private int mCurrentOperationID;
-        private String mCurrentOperationDateTimeStamp;
-        private HashMap<String, Object> mSelectedExpenseType;
-        private Float mSelectedSum;
+//        private int mCurrentOperationID;
+//        private String mCurrentOperationDateTimeStamp;
+//        private HashMap<String, Object> mSelectedExpenseType;
+//        private Float mSelectedSum;
 
         private EditText mSumEditText;
 
 
-        public boolean mChangesSaved = true;
+//        public boolean mChangesSaved = true;
 
         public expenseFragment() {
 
@@ -660,24 +545,16 @@ public class MainActivity extends Activity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
-            EditText expenseTypeSelectionField;
-
             final View rootView = inflater.inflate(LAYOUT, container, false);
 
-//            mMainActivity = (MainActivity) getActivity();
-
-            expenseTypeSelectionField = (EditText)rootView.findViewById(R.id.newExpense_ExpenseType_edit);
+            EditText expenseTypeSelectionField = (EditText)rootView.findViewById(R.id.newExpense_ExpenseType_edit);
             mSumEditText = (EditText)rootView.findViewById(R.id.new_Expense_Sum_edit);
 
             expenseTypeSelectionField.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    expenseTypesListFragment expenseTypesListFragment = MainActivity.expenseTypesListFragment.NewExpenseTypeSelectionListFragment();
-
-//                    Bundle args = new Bundle();
-//                    args.putBoolean(mMainActivity., true);
-//                    expenseTypesListFragment.setArguments(args);
+                    ExpenseTypesListFragment expenseTypesListFragment = ExpenseTypesListFragment.NewExpenseTypeSelectionListFragment();
 
                     // update the main content by replacing fragments
                     FragmentManager fragmentManager = getFragmentManager();
@@ -687,26 +564,6 @@ public class MainActivity extends Activity
                 }
             });
 
-//            if (mCurrentOperationID != 0){
-//                readCurrentOperationData();
-//            }
-
-
-//            if (getArguments() != null && getArguments().containsKey(ARGKEY_SELECTEDEXPENSETYPEID)){
-//
-//                mSelectedExpenseType = new HashMap<String, Object>();
-//                mSelectedExpenseType.put("_id", getArguments().getInt("ExpenseTypeID"));
-//                mSelectedExpenseType.put("name", mMainActivity.getExpenseTypeNameByID(getArguments().getInt("ExpenseTypeID")));
-//
-//                mChangesSaved = false;
-//
-//                getArguments().remove(ARGKEY_SELECTEDEXPENSETYPEID);
-//
-//            }
-
-//            if (mChangesSaved)
-//                clearNewExpense();
-
             return rootView;
 
         }
@@ -714,12 +571,6 @@ public class MainActivity extends Activity
         @Override
         public void onResume() {
             super.onResume();
-
-//            Transaction tr = Transaction.getNewExpenseTransaction(getActivity());
-
-//            if (mChangesSaved)
-//                clearNewExpense();
-
         }
 
         @Override
@@ -728,7 +579,6 @@ public class MainActivity extends Activity
             super.onStart();
 
             showTransactionData();
-//            showSavedData();
 
         }
 
@@ -765,19 +615,13 @@ public class MainActivity extends Activity
 
                 showTransactionData();
 
-//                // Проверить, что всё заполнено
-//                if (saveChangesToDatabase()) {
-//                    clearNewExpense();
-//                    showSavedData();
-//                }
-
                 return true;
             }
             else
                 return super.onOptionsItemSelected(item);
         }
 
-        public Boolean saveChangesToDatabase() {
+/*        public Boolean saveChangesToDatabase() {
 
             if (mSelectedExpenseType != null && mSelectedSum != null && mSelectedSum.intValue() != 0 && mSelectedExpenseType != null ) {
                 mCurrentOperationID = mMainActivity.currentDBAccessHelper.putExpense(mCurrentOperationDateTimeStamp, (Integer) mSelectedExpenseType.get("_id"), mSelectedSum);
@@ -787,9 +631,9 @@ public class MainActivity extends Activity
 
             return false;
 
-        }
+        }*/
 
-        private void readCurrentOperationData(){
+/*        private void readCurrentOperationData(){
             if (mCurrentOperationID != 0){
 
                 HashMap<String, Object> transactionParameters = mMainActivity.currentDBAccessHelper.getTransactionParameters(mCurrentOperationID);
@@ -797,9 +641,9 @@ public class MainActivity extends Activity
 //                transactionParameters.get(mMainActivity.currentDBAccessHelper.);
 
             }
-        }
+        }*/
 
-        private void clearNewExpense(){
+/*        private void clearNewExpense(){
 
             mCurrentOperationID = 0;
             mCurrentOperationDateTimeStamp = (String) DateFormat.format(getString(R.string.operationDateTimeStampFormat), new Date());
@@ -807,9 +651,9 @@ public class MainActivity extends Activity
             mSelectedSum = Float.valueOf(0);
             mChangesSaved = true;
 
-        }
+        }*/
 
-        private void showSavedData(){
+/*        private void showSavedData(){
 
             EditText expense = (EditText) getActivity().findViewById(R.id.newExpense_ExpenseType_edit);
             EditText sum = (EditText)getActivity().findViewById(R.id.new_Expense_Sum_edit);
@@ -824,15 +668,12 @@ public class MainActivity extends Activity
             else
                 sum.setText("");
 
-        }
+        }*/
 
         private void SaveSum(){
 
-            if (!mSumEditText.getText().toString().isEmpty()){
+            if (!mSumEditText.getText().toString().isEmpty())
                 mCurrentTransaction.setSum(Float.parseFloat(mSumEditText.getText().toString()));
-//                mSelectedSum = Float.parseFloat(mSumEditText.getText().toString());
-//                mChangesSaved =false;
-            }
             else
                 mCurrentTransaction.setSum(Float.valueOf(0));
 
@@ -854,7 +695,6 @@ public class MainActivity extends Activity
                 sum.setText("");
 
         }
-
 
     }
 
