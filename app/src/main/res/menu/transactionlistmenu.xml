@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    <item android:id="@+id/newRevenue" android:title="@string/transaction_list_new_revenue_header_text"
+        android:icon="@drawable/ic_plus_light"
+        android:showAsAction="always"/>
+    <item android:id="@+id/newExpense" android:title="@string/transaction_list_new_expense_header_text"
+        android:icon="@drawable/ic_minus_light"
+        android:showAsAction="always"/>
+</menu>

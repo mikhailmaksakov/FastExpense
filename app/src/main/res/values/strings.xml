@@ -11,7 +11,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Настройки</string>
-    <string name="new_expense_header_text">Новый</string>
+    <string name="new_expense_header_text">Сохранить и ввести новый расход</string>
+    <string name="transaction_list_new_expense_header_text">Ввести расход</string>
+    <string name="transaction_list_new_revenue_header_text">Ввести поступление</string>
     <string name="newExpenseNameDialogText">Введите имя нового вида расхода</string>
     <string name="newNameOfExpenseDialogText">Введите новое имя для вида расхода</string>
     <string name="new_expense_ExpenseTypeDefault_text">Не выбран</string>

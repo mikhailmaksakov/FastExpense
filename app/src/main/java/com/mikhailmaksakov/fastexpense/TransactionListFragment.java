@@ -2,6 +2,7 @@ package com.mikhailmaksakov.fastexpense;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -36,16 +37,6 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 
     private fastExpenseDatabaseAccessHelper dbAccessHelper;
 
-/*
-    private ArrayList<HashMap<String, Object>> mExpenseTypesListData;
-
-    private SimpleAdapter mCurrentListAdapter;
-
-    private ListView mCurrentListView;
-
-    private int mListItemToMakeAction;
-*/
-
     SimpleCursorAdapter scAdapter;
 
     public TransactionListFragment() {
@@ -55,10 +46,6 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
     public static TransactionListFragment NewTransactionListFragment() {
 
         TransactionListFragment fragment = new TransactionListFragment();
-
-//        Bundle args = new Bundle();
-//        args.putBoolean(ARG_SELECTION_MODE, false);
-//        fragment.setArguments(args);
 
         return fragment;
 
@@ -70,7 +57,7 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
         super.onAttach(activity);
 
         setHasOptionsMenu(true);
-        setRetainInstance(true);
+//        setRetainInstance(true);
 
     }
 
@@ -177,21 +164,40 @@ public class TransactionListFragment extends Fragment implements LoaderManager.L
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        if (!((MainActivity) getActivity()).mNavigationDrawerFragment.isDrawerOpen()) {
-//            inflater.inflate(R.menu.fastexpensetypeslistmenu, menu);
-//        }
-//        else
+        if (!((MainActivity) getActivity()).mNavigationDrawerFragment.isDrawerOpen()) {
+            inflater.inflate(R.menu.transactionlistmenu, menu);
+        }
+        else
             super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == R.id.newExpenseType){
-//            newExpenseRequest();
-//            return true;
-//        }
-//        else
-            return super.onOptionsItemSelected(item);
+
+        switch (item.getItemId()){
+            case R.id.newExpense:
+
+                if (mMainActivity.mCurrentExpenseFragment == null){
+                    mMainActivity.mCurrentExpenseFragment = MainActivity.expenseFragment.newExpenseFragment();
+                }
+
+                // update the main content by replacing fragments
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, mMainActivity.mCurrentExpenseFragment)
+                        .commit();
+
+                return true;
+
+            case R.id.newRevenue:
+
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
     }
 
     @Override
